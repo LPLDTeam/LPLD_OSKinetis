@@ -1,0 +1,78 @@
+/************************************************************************/
+define symbol __ICFEDIT_intvec_start__ = 0x00000000;
+
+/************************************************************************/
+/*定义RAM和ROM存储区域*/
+/*K60DX256的P-FLASH区域为0x00000000-0x00040000 : 256KB*/
+define symbol __ICFEDIT_region_ROM_start__ = 0x00000000;
+define symbol __ICFEDIT_region_ROM_end__   = 0x00040000;
+
+/*FlexNVM 一般不常用，所以在编译的时候会提示0x1000000-0x1003FFFF没有数据跳过*/
+define symbol __region_FlexNVM_start__     = 0x10000000;
+define symbol __region_FlexNVM_end__       = 0x10040000;
+
+/*K60 Flash 中的0x00000400 到 0x0000040f 用于保存FLASH的版本信息*/
+/*此段在编译的时候必须跳过，不然FLASH下载会出现错误*/
+/*错误表征为FLASH 无法读取*/
+define symbol FlashConfig_start__          = 0x00000400;
+define symbol FlashConfig_end__            = 0x0000040f;
+
+/*K60DX256的RAM 分为SRAM_L和SRAM_U 共64KB*/
+/*RAM 寻址空间必须连续 如果不连续内核会进入异常模式*/
+define symbol __ICFEDIT_region_RAM_start__ = 0x1fff8410;
+define symbol __ICFEDIT_region_RAM_end__   = 0x20000000;
+define symbol __region_RAM2_start__        = 0x20000000;
+define symbol __region_RAM2_end__          = 0x20008000;
+
+
+/*K60DX256 设置堆和栈的大小*/
+define symbol __ICFEDIT_size_cstack__ = 0x1024;
+define symbol __ICFEDIT_size_heap__   = 0x1024;
+/************************************************************************/
+
+/************************************************************************/
+/*配置SP和PC 用于启动程序*/
+/*默认分配的中断向量表起始位置为ROM中的   0x00000000 */
+define exported symbol __VECTOR_TABLE = 0x00000000;
+
+/*程序会将中断向量表从ROM中的0x00000000复制到RAM中起始地址为 0x1fff8000*/
+define exported symbol __VECTOR_RAM   = 0x1fff8000;
+
+/*指定SP指针的起始位置 0x2000FFF8*/
+/*将SP指针指向RAM的最顶端*/
+define exported symbol __BOOT_STACK_ADDRESS = __region_RAM2_end__ - 8;	//0x20007FF8;
+
+/*定义代码段起始区域为0x000410  */
+/*0x000   --- 0x3FF 为中断向量存储区*/
+/*0x400   --- 0x40F 为FLASH版本信息不能破坏*/
+/*0x410 以后为实际的代码段 */
+define symbol __code_start__ = 0x00000410;
+/************************************************************************/
+
+/************************************************************************/
+/*分配4G的寻址空间*/
+define memory mem with size = 4G;
+define region ROM_region   = mem:[from __ICFEDIT_region_ROM_start__   to (FlashConfig_start__ - 1) ] | [from (FlashConfig_end__+1)     to __ICFEDIT_region_ROM_end__] | mem:[from __region_FlexNVM_start__ to __region_FlexNVM_end__];
+define region RAM_region   = mem:[from __ICFEDIT_region_RAM_start__   to __ICFEDIT_region_RAM_end__] | mem:[from __region_RAM2_start__ to __region_RAM2_end__];
+/*设置堆栈的大小 8字节对齐*/
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+
+initialize manually { readwrite };
+initialize manually { section .data};
+initialize manually { section .textrw };
+do not initialize   { section .noinit };
+
+define block CodeRelocate { section .textrw_init };
+define block CodeRelocateRam { section .textrw };
+
+/*将中断向量表起始地址放在 只读段.intvec，也就是对应ROM区的起始地址0x00000000*/
+place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
+/*定义代码执行地址为 0x0000000
+place at address mem:__code_start__ { readonly section .noinit };
+/*将编译后的只读readonly变量，和CodeRelocate块存到ROM区中，编译器动态分配*/
+place in ROM_region   { readonly, block CodeRelocate};
+/*将编译后的可读可写readwrite变量，和CodeRelocateRam块一节堆和栈存到RAM区中，编译器动态分配*/
+place in RAM_region   { readwrite, block CodeRelocateRam,
+                        block CSTACK, block HEAP };
+/************************************************************************/
