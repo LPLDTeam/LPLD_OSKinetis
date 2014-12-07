@@ -13,7 +13,7 @@
 #elif (defined(TWR_K53N512))
   #include <MK53N512CMD100.h>
 #elif (defined(LPLD_K60))
-  #include "MK60DZ10.h" //lpld modify
+  #include "common.h" //lpld modify
 #else
   #error "No valid platform defined"
 #endif

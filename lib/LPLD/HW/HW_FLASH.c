@@ -34,6 +34,7 @@
  */
 void LPLD_Flash_Init(void)
 {
+#if (defined(CPU_MK60DZ10)) 
   //检查Flash访问错误
   if (FTFL->FSTAT & FTFL_FSTAT_ACCERR_MASK)
   {
@@ -53,6 +54,26 @@ void LPLD_Flash_Init(void)
   //禁用Flash模块的数据缓存
   FMC->PFB0CR &= ~FMC_PFB0CR_B0DCE_MASK;
   FMC->PFB1CR &= ~FMC_PFB1CR_B1DCE_MASK;
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)  
+  //检查Flash访问错误
+  if (FTFE->FSTAT & FTFE_FSTAT_ACCERR_MASK)
+  {
+    FTFE->FSTAT |= FTFE_FSTAT_ACCERR_MASK;//清除错误标志
+  }
+  //检查保护错误
+  else if (FTFE->FSTAT & FTFE_FSTAT_FPVIOL_MASK)
+  {
+    FTFE->FSTAT |= FTFE_FSTAT_FPVIOL_MASK;
+  }
+  else if (FTFE->FSTAT & FTFE_FSTAT_RDCOLERR_MASK)
+  {
+  //检查读冲突错误
+    FTFE->FSTAT |= FTFE_FSTAT_RDCOLERR_MASK;
+  } /* EndIf */
+  //禁用Flash模块的数据缓存
+  FMC->PFB01CR &= ~FMC_PFB01CR_B01DCE_MASK;
+  FMC->PFB23CR &= ~FMC_PFB23CR_B23DCE_MASK;
+#endif
 } 
 
 
@@ -69,7 +90,7 @@ void LPLD_Flash_Init(void)
 uint8 LPLD_Flash_SectorErase(uint32 FlashPtr)
 {
   uint8 Return = FLASH_OK;
-  
+#if (defined(CPU_MK60DZ10))   
   //等待CCIF置1
   while (!(FTFL->FSTAT & FTFL_FSTAT_CCIF_MASK)){};
   //写入命令道FCCOB寄存器
@@ -106,7 +127,42 @@ uint8 LPLD_Flash_SectorErase(uint32 FlashPtr)
   {
     Return |= FLASH_MGSTAT0;
   } 
-  
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  //等待CCIF置1
+  while (!(FTFE->FSTAT & FTFE_FSTAT_CCIF_MASK)){};
+  //写入命令道FCCOB寄存器
+  FTFE->FCCOB0 = FlashCmd_SectorErase;
+  FTFE->FCCOB1 = (uint8_t) (FlashPtr >> 16);
+  FTFE->FCCOB2 = (uint8_t)((FlashPtr >> 8 ) & 0xFF);
+  FTFE->FCCOB3 = (uint8_t)( FlashPtr & 0xFF);
+
+  //执行命令
+  FTFE->FSTAT |= FTFE_FSTAT_CCIF_MASK;    
+  //等待命令完成
+  while (!(FTFE->FSTAT & FTFE_FSTAT_CCIF_MASK)) {};
+  //检查Flash访问错误
+  if (FTFE->FSTAT & FTFE_FSTAT_ACCERR_MASK)
+  {
+    FTFE->FSTAT |= FTFE_FSTAT_ACCERR_MASK; //清除错误标志
+    Return |= FLASH_FACCERR;              //更新返回值
+  }
+  //检查Flash保护标志
+  else if (FTFE->FSTAT & FTFE_FSTAT_FPVIOL_MASK)
+  {
+    FTFE->FSTAT |= FTFE_FSTAT_FPVIOL_MASK;
+    Return |= FLASH_FPVIOL;
+  }
+  else if (FTFE->FSTAT & FTFE_FSTAT_RDCOLERR_MASK)
+  {
+    FTFE->FSTAT |= FTFE_FSTAT_RDCOLERR_MASK;
+    Return |= FLASH_RDCOLERR;
+  }
+  //检查Flash读冲突错误
+  else if (FTFE->FSTAT & FTFE_FSTAT_MGSTAT0_MASK)
+  {
+    Return |= FLASH_MGSTAT0;
+  } 
+#endif
   return  Return;
 }
 
@@ -134,8 +190,9 @@ uint8 LPLD_Flash_ByteProgram(uint32 FlashStartAdd, uint32 *DataSrcPtr, uint32 Nu
   }
   else
   {
-    size_buffer = (NumberOfBytes - 1)/4 + 1;
+    size_buffer = (NumberOfBytes - 1)/BYTE_DIV + 1;
   }
+#if (defined(CPU_MK60DZ10))
   //等待直到CCIF设置
   while (!(FTFL->FSTAT & FTFL_FSTAT_CCIF_MASK)){};
 
@@ -190,6 +247,63 @@ uint8 LPLD_Flash_ByteProgram(uint32 FlashStartAdd, uint32 *DataSrcPtr, uint32 Nu
     size_buffer --;
     (uint32*)DataSrcPtr++;
     FlashStartAdd +=4;
-  } 
+  }
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15) 
+  //等待直到CCIF设置
+  while (!(FTFE->FSTAT & FTFE_FSTAT_CCIF_MASK)){};
+
+  while ((size_buffer) && (Return == FLASH_OK))
+  {
+    //写FLASH命令到FCCOB
+    FTFE->FCCOB0 = FlashCmd_ProgramPhrase;
+    FTFE->FCCOB1 = (uint8_t)( FlashStartAdd >> 16);
+    FTFE->FCCOB2 = (uint8_t)((FlashStartAdd >>  8) & 0xFF);
+    FTFE->FCCOB3 = (uint8_t)( FlashStartAdd & 0xFF);
+    //如果K60设置成为小端格式，进行如下操作
+    FTFE->FCCOB4 = (uint8_t)(*((uint8_t*)DataSrcPtr+3));
+    FTFE->FCCOB5 = (uint8_t)(*((uint8_t*)DataSrcPtr+2));
+    FTFE->FCCOB6 = (uint8_t)(*((uint8_t*)DataSrcPtr+1));
+    FTFE->FCCOB7 = (uint8_t)(*((uint8_t*)DataSrcPtr+0));
+    FTFE->FCCOB8 = (uint8_t)(*((uint8_t*)DataSrcPtr+7));
+    FTFE->FCCOB9 = (uint8_t)(*((uint8_t*)DataSrcPtr+6));
+    FTFE->FCCOBA = (uint8_t)(*((uint8_t*)DataSrcPtr+5));
+    FTFE->FCCOBB = (uint8_t)(*((uint8_t*)DataSrcPtr+4));
+    //如果K60设置成为大端格式，进行如下操作
+    //FTFE_FCCOB4 = (uint8_t)(*((uint_8*)DataSrcPtr+0));
+    //FTFE_FCCOB5 = (uint8_t)(*((uint_8*)DataSrcPtr+1));
+    //FTFE_FCCOB6 = (uint8_t)(*((uint_8*)DataSrcPtr+2));
+    //FTFE_FCCOB7 = (uint8_t)(*((uint_8*)DataSrcPtr+3));
+    //设置FLASH加载命令
+    FTFE->FSTAT |= FTFE_FSTAT_CCIF_MASK;    
+    //等待命令完成
+    while (!(FTFE->FSTAT & FTFE_FSTAT_CCIF_MASK)) {};
+
+    //检测FLASH访问错误
+    if (FTFE->FSTAT & FTFE_FSTAT_ACCERR_MASK)
+    {
+      FTFE->FSTAT |= FTFE_FSTAT_ACCERR_MASK;
+      Return |= FLASH_FACCERR;
+    }
+    //检测FLASH保护错误
+    else if (FTFE->FSTAT & FTFE_FSTAT_FPVIOL_MASK)
+    {
+      FTFE->FSTAT |= FTFE_FSTAT_FPVIOL_MASK;
+      Return |= FLASH_FPVIOL;
+    }
+    else if (FTFE->FSTAT & FTFE_FSTAT_RDCOLERR_MASK)
+    {
+      FTFE->FSTAT |= FTFE_FSTAT_RDCOLERR_MASK;
+      Return |= FLASH_RDCOLERR;
+    }
+    else if (FTFE->FSTAT & FTFE_FSTAT_MGSTAT0_MASK)
+    {
+        Return |= FLASH_MGSTAT0;
+    } 
+    //计算偏移量
+    size_buffer --;
+    DataSrcPtr += 2;     
+    FlashStartAdd +=BYTE_DIV;
+  }
+#endif
   return  Return;
 } 

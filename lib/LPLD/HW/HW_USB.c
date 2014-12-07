@@ -35,13 +35,26 @@ USB_ISR_CALLBACK USB_ISR[1];
 
 void LPLD_USB_Init(void)
 { 
-  MPU->CESR=0; //MPU 配置 
+  MPU->CESR=0; //MPU 配置
+#if (defined(CPU_MK60DZ10))  
   SIM->SOPT2 |= SIM_SOPT2_USBSRC_MASK |   //选择PLL/FLL作为时钟源
                SIM_SOPT2_PLLFLLSEL_MASK; //用PLL作为USB的时钟源，此时的PLL的频率为96Mhz 
 #if(CORE_CLK_MHZ == PLL_96)
   SIM->CLKDIV2 = 0x02;                    //设置分频系数USB时钟 = 96Mhz/2 =48Mhz
 #endif 
-  SIM->SCGC4 |= (SIM_SCGC4_USBOTG_MASK);  //使能USB外设时钟  
+  SIM->SCGC4 |= SIM_SCGC4_USBOTG_MASK;  //使能USB外设时钟
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  SIM->SOPT2 |= SIM_SOPT2_PLLFLLSEL(1)      // 选择 PLL0 作为参考   
+            |  SIM_SOPT2_USBFSRC(0)         // 选择 MCGPLLCLK 作为 CLKC 参考源 
+            |  SIM_SOPT2_USBF_CLKSEL_MASK;  // 选择 USB fractional divider 座位 USB reference clock 参考源 
+#if(CORE_CLK_MHZ == PLL_120)
+// MCGPLLCLK =  120MHz 
+// USB Clock = PLL0 x (FRAC +1) / (DIV+1)    
+// USB Clock = 120MHz x (1+1) / (4+1) = 48 MHz   
+  SIM->CLKDIV2 = SIM_CLKDIV2_USBFSFRAC_MASK | SIM_CLKDIV2_USBFSDIV(4);
+#endif
+  SIM->SCGC4 |= SIM_SCGC4_USBFS_MASK;   //使能USB外设时钟 
+#endif 
   USB0->USBTRC0 = 0x40;                   //按照文档所述，此位必须设置为1
   SIM->SOPT1 |= SIM_SOPT1_USBREGEN_MASK;  //配置USB设备稳压源
   

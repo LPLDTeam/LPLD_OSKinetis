@@ -58,8 +58,11 @@ uint8 LPLD_I2C_Init(I2C_InitTypeDef i2c_init_structure)
 
   if(i2cx == I2C0)
   {
+#if (defined(CPU_MK60DZ10))  
     SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK; //开启I2C0时钟
-
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+    SIM->SCGC4 |= SIM_SCGC4_IIC0_MASK; //开启I2C0时钟
+#endif 
     if(scl_pin == PTD8)
     {
       PORTD->PCR[8] = PORT_PCR_MUX(2) | ode_mask;         
@@ -88,7 +91,11 @@ uint8 LPLD_I2C_Init(I2C_InitTypeDef i2c_init_structure)
   }
   else if(i2cx == I2C1)
   { 
-    SIM->SCGC4 |= SIM_SCGC4_I2C1_MASK; //开启I2C1时钟
+#if (defined(CPU_MK60DZ10))  
+    SIM->SCGC4 |= SIM_SCGC4_I2C1_MASK; //开启I2C0时钟
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+    SIM->SCGC4 |= SIM_SCGC4_IIC1_MASK; //开启I2C0时钟
+#endif
 
     if(scl_pin == PTE1)
     {
@@ -165,12 +172,20 @@ uint8 LPLD_I2C_Deinit(I2C_InitTypeDef i2c_init_structure)
   i2cx->C1 &= ~I2C_C1_IICEN_MASK;      //I2Cx
   if(i2cx == I2C0)
   {
-    SIM->SCGC4 &= ~SIM_SCGC4_I2C0_MASK; //关闭I2C0时钟
+#if (defined(CPU_MK60DZ10))  
+    SIM->SCGC4 |= SIM_SCGC4_I2C0_MASK; //开启I2C0时钟
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+    SIM->SCGC4 |= SIM_SCGC4_IIC0_MASK; //开启I2C0时钟
+#endif
     disable_irq((IRQn_Type)I2C0_IRQn);
   }
   else if (i2cx == I2C1)
   {
-    SIM->SCGC4 &= ~SIM_SCGC4_I2C1_MASK; //关闭I2C1时钟
+#if (defined(CPU_MK60DZ10))  
+    SIM->SCGC4 |= SIM_SCGC4_I2C1_MASK; //开启I2C0时钟
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+    SIM->SCGC4 |= SIM_SCGC4_IIC1_MASK; //开启I2C0时钟
+#endif
     disable_irq((IRQn_Type)I2C1_IRQn);
   }
   else

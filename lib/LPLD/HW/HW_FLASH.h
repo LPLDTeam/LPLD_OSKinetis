@@ -31,10 +31,18 @@
 #define FLASH_NOT_ERASED            0x10
 #define FLASH_CONTENTERR            0x11
 
+#if (defined(CPU_MK60DZ10)) 
 /* flashÃüÁî */
 #define FLASH_CMD_PGM4              0x06      //±à³Ì³¤×ÖÃüÁî
 #define FLASH_CMD_ERSSCR            0x09      //²Á³ıFlashÉÈÇøÃüÁî
-
+#define BYTE_DIV    (4)
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+/* flashÃüÁî */
+#define FlashCmd_ProgramPhrase      0x07
+#define FlashCmd_SectorErase        0x09
+#define FlashCmd_ProgramSection     0x0B
+#define BYTE_DIV    (8)
+#endif
 
 void LPLD_Flash_Init(void);
 uint8 LPLD_Flash_SectorErase(uint32);

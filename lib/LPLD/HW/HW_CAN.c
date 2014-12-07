@@ -85,8 +85,11 @@ void LPLD_CAN_Init(CAN_InitTypeDef can_init_structure)
   ASSERT(mask_mode <= CAN_MSGOBJ_GLOBAL_MASKING);
   ASSERT(baud <= CAN_BAUD_RATE_1MBPS);
     
+#if (defined(CPU_MK60DZ10))  
   OSC->CR |= OSC_CR_ERCLKEN_MASK | OSC_CR_EREFSTEN_MASK;
-  
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  OSC0->CR |= OSC_CR_ERCLKEN_MASK | OSC_CR_EREFSTEN_MASK;
+#endif    
   if(canx == CAN0)
     SIM->SCGC6 |= SIM_SCGC6_FLEXCAN0_MASK;
   else

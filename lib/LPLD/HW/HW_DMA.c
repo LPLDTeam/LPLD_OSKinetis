@@ -64,13 +64,19 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   ASSERT( dst_addr != NULL );      //目的地址判断
   ASSERT( (dst_dsize <= DMA_DST_32BIT)||(dst_dsize == DMA_DST_16BYTE) );     //目的数据传输大小判断
  
-  SIM->SCGC6 |= SIM_SCGC6_DMAMUX_MASK;  //打开DMA通道多路复用器时钟   
+#if (defined(CPU_MK60DZ10))  
+  SIM->SCGC6 |= SIM_SCGC6_DMAMUX_MASK;  //打开DMA通道多路复用器时钟 
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  SIM->SCGC6 |= SIM_SCGC6_DMAMUX0_MASK;  //打开DMA通道多路复用器时钟 
+  SIM->SCGC6 |= SIM_SCGC6_DMAMUX1_MASK;  //打开DMA通道多路复用器时钟 
+#endif  
   SIM->SCGC7 |= SIM_SCGC7_DMA_MASK;     //打开DMA模块时钟
   
   //关闭通道x硬件DMA请求 
   DMA0->ERQ &= ~(1<<chx);
   
   //选择 通道x 配置外设的DMA源请求编号
+#if (defined(CPU_MK60DZ10))
   DMAMUX->CHCFG[chx] = DMAMUX_CHCFG_SOURCE(req);
   //是否使能周期触发功能
   if(periodic_trigg == TRUE)
@@ -81,6 +87,35 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   {
     DMAMUX->CHCFG[chx] &= ~(DMAMUX_CHCFG_TRIG_MASK);
   }
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  if(chx < 16)
+  {
+    DMAMUX0->CHCFG[chx] = DMAMUX_CHCFG_SOURCE(req);
+    //是否使能周期触发功能
+    if(periodic_trigg == TRUE)
+    {
+      DMAMUX0->CHCFG[chx] |= DMAMUX_CHCFG_TRIG_MASK;
+    }
+    else
+    {
+      DMAMUX0->CHCFG[chx] &= ~(DMAMUX_CHCFG_TRIG_MASK);
+    }
+  }
+  else // ch > 16
+  {
+    DMAMUX1->CHCFG[chx] = DMAMUX_CHCFG_SOURCE(req);
+    //是否使能周期触发功能
+    if(periodic_trigg == TRUE)
+    {
+      DMAMUX1->CHCFG[chx] |= DMAMUX_CHCFG_TRIG_MASK;
+    }
+    else
+    {
+      DMAMUX1->CHCFG[chx] &= ~(DMAMUX_CHCFG_TRIG_MASK);
+    }
+  }
+#endif   
+
   
   
   //设置源地址   
@@ -147,8 +182,18 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   } 
  
   //DMA通道使能
+#if (defined(CPU_MK60DZ10))  
   DMAMUX->CHCFG[chx] |= DMAMUX_CHCFG_ENBL_MASK;
-    
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  if(chx < 16)
+  {
+    DMAMUX0->CHCFG[chx] |= DMAMUX_CHCFG_ENBL_MASK;
+  }
+  else
+  {
+    DMAMUX1->CHCFG[chx] |= DMAMUX_CHCFG_ENBL_MASK;
+  }
+#endif
   return 1;
 }
 
@@ -166,7 +211,18 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
  */
 uint8 LPLD_DMA_EnableIrq(DMA_InitTypeDef dma_init_struct)
 {
-  enable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_IRQn));  
+#if (defined(CPU_MK60DZ10))
+  enable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_IRQn)); 
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  if(dma_init_struct.DMA_CHx < 16)
+  {
+    enable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_DMA16_IRQn));
+  }
+  else // ch > 16
+  {
+    enable_irq((IRQn_Type)(dma_init_struct.DMA_CHx - 16 + DMA0_DMA16_IRQn));
+  }
+#endif 
   return 1;
 }
 
@@ -184,7 +240,18 @@ uint8 LPLD_DMA_EnableIrq(DMA_InitTypeDef dma_init_struct)
  */
 uint8 LPLD_DMA_DisableIrq(DMA_InitTypeDef dma_init_struct)
 {
-  disable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_IRQn));
+#if (defined(CPU_MK60DZ10))
+  disable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_IRQn)); 
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  if(dma_init_struct.DMA_CHx < 16)
+  {
+    disable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_DMA16_IRQn));
+  }
+  else // ch > 16
+  {
+    disable_irq((IRQn_Type)(dma_init_struct.DMA_CHx - 16 + DMA0_DMA16_IRQn));
+  }
+#endif 
   return 1;
 }
 

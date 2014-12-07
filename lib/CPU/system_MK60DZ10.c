@@ -117,8 +117,13 @@ void SystemInit (void) {
  */
 void SystemCoreClockUpdate (void) {
   uint32_t temp;
+#if (defined(CPU_MK60DZ10)) 
   temp =  CPU_XTAL_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV_MASK) + 24u );
   temp = (uint32_t)(temp/((uint32_t)(MCG->C5 & MCG_C5_PRDIV_MASK) +1u ));
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  temp =  CPU_XTAL_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV0_MASK) + 24u );
+  temp = (uint32_t)(temp/((uint32_t)(MCG->C5 & MCG_C5_PRDIV0_MASK) +1u ));
+#endif
   SystemCoreClock = temp;
 }
 

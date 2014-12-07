@@ -49,8 +49,11 @@ static void LPLD_SDHC_InitGPIO(uint32 init)
   PORTE->PCR[3] = init & (PORT_PCR_MUX(4) | PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_DSE_MASK);    /* SDHC.CMD */
   PORTE->PCR[4] = init & (PORT_PCR_MUX(4) | PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_DSE_MASK);    /* SDHC.D3  */
   PORTE->PCR[5] = init & (PORT_PCR_MUX(4) | PORT_PCR_PS_MASK | PORT_PCR_PE_MASK | PORT_PCR_DSE_MASK);    /* SDHC.D2  */
-  
+#if (defined(CPU_MK60DZ10))   
   SIM->SCGC3 |= SIM_SCGC3_SDHC_MASK; 
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  SIM->SCGC3 |= SIM_SCGC3_ESDHC_MASK;
+#endif
 }
 
 

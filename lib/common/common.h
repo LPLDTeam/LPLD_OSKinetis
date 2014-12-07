@@ -104,6 +104,10 @@ typedef unsigned char   boolean;      /* 8-bit*/
  */
 #if (defined(CPU_MK60DZ10))
   #include "MK60DZ10.h"
+#elif (defined(CPU_MK60F12))
+  #include "MK60F12.h"
+#elif (defined(CPU_MK60F15))
+  #include "MK60F15.h"
 #else
   #error "No valid CPU defined"
 #endif

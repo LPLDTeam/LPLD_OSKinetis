@@ -27,6 +27,7 @@
 
 typedef enum PllOptionEnum
 {
+#if (defined(CPU_MK60DZ10))
   PLL_48=48u,    //如果使用USB模块，必须选择48的倍数主频
   PLL_50=50u,
   PLL_96=96u,    //如果使用USB模块，必须选择48的倍数主频
@@ -36,6 +37,14 @@ typedef enum PllOptionEnum
   PLL_180=180u,
   PLL_200=200u   //如果超到200，发热很正常，烧了别找我>_>
   //高于200Mhz的内核频率不建议使用，MK60DZ10到不了煎蛋的水平^_^
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  PLL_100=100u,  
+  PLL_120=120u,  //120MHz是MK60F12的额定最高主频
+  PLL_150=150u,  //150MHz是MK60F15的额定最高主频
+  PLL_180=180u,
+  PLL_200=200u   //如果超到200，发热很正常，烧了别找我>_>
+  //高于200Mhz的内核频率不建议使用，MK60F12 & 15到不了煎蛋的水平^_^ 
+#endif
 } PllOptionEnum_Type;
 
 //初始化内核时钟及其他系统时钟
