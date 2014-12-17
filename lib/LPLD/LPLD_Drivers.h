@@ -76,6 +76,9 @@ typedef enum PortPinsEnum
   PTE0=124,  PTE1=125,  PTE2=126,  PTE3=127,
   PTE4=128,  PTE5=129,  PTE6=130,  PTE7=131,
   PTE8=132,  PTE9=133,  PTE10=134, PTE11=135,
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  PTE12=136,
+#endif
   /********* MK60DZ10ÎÞPTE12~15 ************/
   /********* MK60DZ10ÎÞPTE16~19 ************/
   /********* MK60DZ10ÎÞPTE20~23 ************/

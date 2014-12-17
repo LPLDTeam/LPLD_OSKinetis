@@ -81,7 +81,10 @@ typedef struct
     描述：
       选择FTMx
     取值：
-      FTM0、FTM1、FTM2
+      MK60D系列：
+        FTM0、FTM1、FTM2
+      MK60F系列 :
+        FTM0、FTM1、FTM2、FTM3
     初始化：
       必须初始化
   */

@@ -23,7 +23,11 @@
 #include "HW_FTM.h"
 
 //用户自定义中断服务函数数组
+#if (defined(CPU_MK60DZ10))
 FTM_ISR_CALLBACK FTM_ISR[3];
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+FTM_ISR_CALLBACK FTM_ISR[4];
+#endif
 
 static uint8 LPLD_FTM_PWM_Init(FTM_InitTypeDef);
 static uint8 LPLD_FTM_IC_Init(FTM_InitTypeDef);
@@ -68,6 +72,13 @@ uint8 LPLD_FTM_Init(FTM_InitTypeDef ftm_init_structure)
     i=2;
     SIM->SCGC3 |= SIM_SCGC3_FTM2_MASK;
   }
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(ftm_init_structure.FTM_Ftmx == FTM3)
+  {
+    i=3;
+    SIM->SCGC3 |= SIM_SCGC3_FTM3_MASK;
+  }
+#endif
   else
   {
     return 0;
@@ -132,6 +143,12 @@ uint8 LPLD_FTM_Deinit(FTM_InitTypeDef ftm_init_structure)
   {
     SIM->SCGC3 &= ~SIM_SCGC3_FTM2_MASK;
   }
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(ftm_init_structure.FTM_Ftmx == FTM3)
+  {
+    SIM->SCGC3 &= ~SIM_SCGC3_FTM3_MASK;
+  }
+#endif
   else
   {
     return 0;
@@ -143,21 +160,24 @@ uint8 LPLD_FTM_Deinit(FTM_InitTypeDef ftm_init_structure)
 /*
  * LPLD_FTM_PWM_Enable
  * FTM模块PWM模式输出使能，配置输出通道、占空比、指定对应的引脚、对齐方式
- *
+ * 
  * 参数:
  *    ftmx--FTMx模块号
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *    chn--PWM输出通道
- *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2)
- *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2)
- *      |__FTM_Ch2          --FTMx通道2(FTM0)
- *      |__FTM_Ch3          --FTMx通道3(FTM0)
- *      |__FTM_Ch4          --FTMx通道4(FTM0)
- *      |__FTM_Ch5          --FTMx通道5(FTM0)
- *      |__FTM_Ch6          --FTMx通道6(FTM0)
- *      |__FTM_Ch7          --FTMx通道7(FTM0)
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch2          --FTMx通道2(FTM0\FTM3)
+ *      |__FTM_Ch3          --FTMx通道3(FTM0\FTM3)
+ *      |__FTM_Ch4          --FTMx通道4(FTM0\FTM3)
+ *      |__FTM_Ch5          --FTMx通道5(FTM0\FTM3)
+ *      |__FTM_Ch6          --FTMx通道6(FTM0\FTM3)
+ *      |__FTM_Ch7          --FTMx通道7(FTM0\FTM3)
  *    duty--PWM输出占空比
  *      |__0~10000--占空比0.00%~100.00%
  *    pin--FTMx通道对应的引脚
@@ -176,6 +196,16 @@ uint8 LPLD_FTM_Deinit(FTM_InitTypeDef ftm_init_structure)
  *      FTM2
  *       FTM_Ch0-PTA10\PTB18
  *       FTM_Ch1-PTA11\PTB19
+ *      <注:只有MK60F系列含有FTM3>
+ *      FTM3
+ *       FTM_Ch0-PTE5\PTD0
+ *       FTM_Ch1-PTE6\PTD1
+ *       FTM_Ch2-PTE7\PTD2
+ *       FTM_Ch3-PTE8\PTD3
+ *       FTM_Ch4-PTE9\PTC8
+ *       FTM_Ch5-PTE10\PTC9
+ *       FTM_Ch6-PTE11\PTC10
+ *       FTM_Ch7-PTE12\PTC11
  *    align--脉冲对齐方式
  *      |__ALIGN_LEFT    --左对齐
  *      |__ALIGN_RIGHT   --右对齐
@@ -224,15 +254,18 @@ uint8 LPLD_FTM_PWM_Enable(FTM_Type *ftmx, FtmChnEnum_Type chn, uint32 duty, Port
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *    chn--PWM输出通道
- *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2)
- *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2)
- *      |__FTM_Ch2          --FTMx通道2(FTM0)
- *      |__FTM_Ch3          --FTMx通道3(FTM0)
- *      |__FTM_Ch4          --FTMx通道4(FTM0)
- *      |__FTM_Ch5          --FTMx通道5(FTM0)
- *      |__FTM_Ch6          --FTMx通道6(FTM0)
- *      |__FTM_Ch7          --FTMx通道7(FTM0)
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch2          --FTMx通道2(FTM0\FTM3)
+ *      |__FTM_Ch3          --FTMx通道3(FTM0\FTM3)
+ *      |__FTM_Ch4          --FTMx通道4(FTM0\FTM3)
+ *      |__FTM_Ch5          --FTMx通道5(FTM0\FTM3)
+ *      |__FTM_Ch6          --FTMx通道6(FTM0\FTM3)
+ *      |__FTM_Ch7          --FTMx通道7(FTM0\FTM3)
  *    duty--PWM输出占空比
  *      |__0~10000--占空比0.00%~100.00%
  *
@@ -273,15 +306,18 @@ uint8 LPLD_FTM_PWM_ChangeDuty(FTM_Type *ftmx, FtmChnEnum_Type chn, uint32 duty)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *    chn--PWM输出通道
- *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2)
- *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2)
- *      |__FTM_Ch2          --FTMx通道2(FTM0)
- *      |__FTM_Ch3          --FTMx通道3(FTM0)
- *      |__FTM_Ch4          --FTMx通道4(FTM0)
- *      |__FTM_Ch5          --FTMx通道5(FTM0)
- *      |__FTM_Ch6          --FTMx通道6(FTM0)
- *      |__FTM_Ch7          --FTMx通道7(FTM0)
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch2          --FTMx通道2(FTM0\FTM3)
+ *      |__FTM_Ch3          --FTMx通道3(FTM0\FTM3)
+ *      |__FTM_Ch4          --FTMx通道4(FTM0\FTM3)
+ *      |__FTM_Ch5          --FTMx通道5(FTM0\FTM3)
+ *      |__FTM_Ch6          --FTMx通道6(FTM0\FTM3)
+ *      |__FTM_Ch7          --FTMx通道7(FTM0\FTM3)
  *
  * 输出:
  *    0--配置错误
@@ -307,15 +343,20 @@ uint8 LPLD_FTM_DisableChn(FTM_Type *ftmx, FtmChnEnum_Type chn)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *    chn--PWM输出通道
- *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2)
- *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2)
- *      |__FTM_Ch2          --FTMx通道2(FTM0)
- *      |__FTM_Ch3          --FTMx通道3(FTM0)
- *      |__FTM_Ch4          --FTMx通道4(FTM0)
- *      |__FTM_Ch5          --FTMx通道5(FTM0)
- *      |__FTM_Ch6          --FTMx通道6(FTM0)
- *      |__FTM_Ch7          --FTMx通道7(FTM0)
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch2          --FTMx通道2(FTM0\FTM3)
+ *      |__FTM_Ch3          --FTMx通道3(FTM0\FTM3)
+ *      |__FTM_Ch4          --FTMx通道4(FTM0\FTM3)
+ *      |__FTM_Ch5          --FTMx通道5(FTM0\FTM3)
+ *      |__FTM_Ch6          --FTMx通道6(FTM0\FTM3)
+ *      |__FTM_Ch7          --FTMx通道7(FTM0\FTM3)
+ *    duty--PWM输出占空比
+ *      |__0~10000--占空比0.00%~100.00%
  *    pin--FTMx通道对应的引脚
  *      FTM0
  *       FTM_Ch0-PTA3\PTC1
@@ -332,6 +373,16 @@ uint8 LPLD_FTM_DisableChn(FTM_Type *ftmx, FtmChnEnum_Type chn)
  *      FTM2
  *       FTM_Ch0-PTA10\PTB18
  *       FTM_Ch1-PTA11\PTB19
+ *      <注:只有MK60F系列含有FTM3>
+ *      FTM3
+ *       FTM_Ch0-PTE5\PTD0
+ *       FTM_Ch1-PTE6\PTD1
+ *       FTM_Ch2-PTE7\PTD2
+ *       FTM_Ch3-PTE8\PTD3
+ *       FTM_Ch4-PTE9\PTC8
+ *       FTM_Ch5-PTE10\PTC9
+ *       FTM_Ch6-PTE11\PTC10
+ *       FTM_Ch7-PTE12\PTC11
  *    capture_edge--捕获边缘设置
  *      |__CAPTURE_RI    --上升沿捕获
  *      |__CAPTURE_FA    --下降沿捕获
@@ -370,6 +421,8 @@ uint8 LPLD_FTM_IC_Enable(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_Type 
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *
  * 输出:
  *    TRUE、FALSE
@@ -389,6 +442,8 @@ __INLINE boolean LPLD_FTM_IsTOF(FTM_Type *ftmx)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *
  * 输出:
  *    无
@@ -408,15 +463,18 @@ __INLINE void LPLD_FTM_ClearTOF(FTM_Type *ftmx)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *    chn--PWM输出通道
- *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2)
- *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2)
- *      |__FTM_Ch2          --FTMx通道2(FTM0)
- *      |__FTM_Ch3          --FTMx通道3(FTM0)
- *      |__FTM_Ch4          --FTMx通道4(FTM0)
- *      |__FTM_Ch5          --FTMx通道5(FTM0)
- *      |__FTM_Ch6          --FTMx通道6(FTM0)
- *      |__FTM_Ch7          --FTMx通道7(FTM0)
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch2          --FTMx通道2(FTM0\FTM3)
+ *      |__FTM_Ch3          --FTMx通道3(FTM0\FTM3)
+ *      |__FTM_Ch4          --FTMx通道4(FTM0\FTM3)
+ *      |__FTM_Ch5          --FTMx通道5(FTM0\FTM3)
+ *      |__FTM_Ch6          --FTMx通道6(FTM0\FTM3)
+ *      |__FTM_Ch7          --FTMx通道7(FTM0\FTM3)
  *
  * 输出:
  *    TRUE、FALSE
@@ -436,15 +494,18 @@ __INLINE boolean LPLD_FTM_IsCHnF(FTM_Type *ftmx, FtmChnEnum_Type chn)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *    chn--PWM输出通道
- *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2)
- *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2)
- *      |__FTM_Ch2          --FTMx通道2(FTM0)
- *      |__FTM_Ch3          --FTMx通道3(FTM0)
- *      |__FTM_Ch4          --FTMx通道4(FTM0)
- *      |__FTM_Ch5          --FTMx通道5(FTM0)
- *      |__FTM_Ch6          --FTMx通道6(FTM0)
- *      |__FTM_Ch7          --FTMx通道7(FTM0)
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch2          --FTMx通道2(FTM0\FTM3)
+ *      |__FTM_Ch3          --FTMx通道3(FTM0\FTM3)
+ *      |__FTM_Ch4          --FTMx通道4(FTM0\FTM3)
+ *      |__FTM_Ch5          --FTMx通道5(FTM0\FTM3)
+ *      |__FTM_Ch6          --FTMx通道6(FTM0\FTM3)
+ *      |__FTM_Ch7          --FTMx通道7(FTM0\FTM3)
  *
  * 输出:
  *    无
@@ -464,15 +525,18 @@ __INLINE void LPLD_FTM_ClearCHnF(FTM_Type *ftmx, FtmChnEnum_Type chn)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *    chn--PWM输出通道
- *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2)
- *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2)
- *      |__FTM_Ch2          --FTMx通道2(FTM0)
- *      |__FTM_Ch3          --FTMx通道3(FTM0)
- *      |__FTM_Ch4          --FTMx通道4(FTM0)
- *      |__FTM_Ch5          --FTMx通道5(FTM0)
- *      |__FTM_Ch6          --FTMx通道6(FTM0)
- *      |__FTM_Ch7          --FTMx通道7(FTM0)
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM_Ch0          --FTMx通道0(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch1          --FTMx通道1(FTM0\FTM1\FTM2\FTM3)
+ *      |__FTM_Ch2          --FTMx通道2(FTM0\FTM3)
+ *      |__FTM_Ch3          --FTMx通道3(FTM0\FTM3)
+ *      |__FTM_Ch4          --FTMx通道4(FTM0\FTM3)
+ *      |__FTM_Ch5          --FTMx通道5(FTM0\FTM3)
+ *      |__FTM_Ch6          --FTMx通道6(FTM0\FTM3)
+ *      |__FTM_Ch7          --FTMx通道7(FTM0\FTM3)
  *
  * 输出:
  *    0x1~0xFFFF
@@ -492,6 +556,8 @@ __INLINE uint16 LPLD_FTM_GetChVal(FTM_Type *ftmx, FtmChnEnum_Type chn)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *
  * 输出:
  *    1、2、4、8、16、32、64、128
@@ -511,6 +577,8 @@ __INLINE uint8 LPLD_FTM_GetClkDiv(FTM_Type *ftmx)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *
  * 输出:
  *    无
@@ -530,6 +598,8 @@ __INLINE uint16 LPLD_FTM_GetCounter(FTM_Type *ftmx)
  *      |__FTM0          --FTM0
  *      |__FTM1          --FTM1
  *      |__FTM2          --FTM2
+ *      <注:只有MK60F系列含有FTM3>
+ *      |__FTM3          --FTM3
  *
  * 输出:
  *    无
@@ -564,6 +634,10 @@ uint8 LPLD_FTM_EnableIrq(FTM_InitTypeDef ftm_init_structure)
     i=1;
   else if(ftmx == FTM2)
     i=2;
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(ftmx == FTM3)
+    i=3;
+#endif
   else
     return 0;
 
@@ -596,6 +670,10 @@ uint8 LPLD_FTM_DisableIrq(FTM_InitTypeDef ftm_init_structure)
     i=1;
   else if(ftmx == FTM2)
     i=2;
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(ftmx == FTM3)
+    i=3;
+#endif
   else
     return 0;
 
@@ -790,6 +868,10 @@ static uint8 LPLD_FTM_IC_Init(FTM_InitTypeDef ftm_init_structure)
       i=1;
     else if(ftmx == FTM2)
       i=2;
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+    else if(ftmx == FTM3)
+      i=3;
+#endif   
     else
       return 0;
     FTM_ISR[i] = isr_func;
@@ -964,6 +1046,81 @@ static uint8 LPLD_FTM_PinInit(FTM_Type *ftmx, FtmChnEnum_Type chn, PortPinsEnum_
       return 0;   
     }
   }
+  
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(ftmx == FTM3)
+  {
+    switch(chn)
+    {
+    case FTM_Ch0:
+      if(pin == PTE5)
+        PORTE->PCR[5] = PORTE->PCR[5] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTD0)
+        PORTD->PCR[0] = PORTD->PCR[0] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
+      else
+        return 0;
+      break;
+    case FTM_Ch1:
+      if(pin == PTE6)
+        PORTE->PCR[6] = PORTE->PCR[6] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTD0)
+        PORTD->PCR[1] = PORTD->PCR[1] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
+      else
+        return 0;
+      break;
+    case FTM_Ch2:
+      if(pin == PTE7)
+        PORTE->PCR[7] = PORTE->PCR[7] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTD0)
+        PORTD->PCR[2] = PORTD->PCR[2] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
+      else
+        return 0;
+      break;
+    case FTM_Ch3:
+      if(pin == PTE8)
+        PORTE->PCR[8] = PORTE->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTD0)
+        PORTD->PCR[3] = PORTD->PCR[3] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(4);
+      else
+        return 0;
+      break;
+    case FTM_Ch4:
+      if(pin == PTE9)
+        PORTE->PCR[9] = PORTE->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTC8)
+        PORTC->PCR[8] = PORTC->PCR[8] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
+      else
+        return 0;
+      break;
+    case FTM_Ch5:
+      if(pin == PTE10)
+        PORTE->PCR[10] = PORTE->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTC9)
+        PORTC->PCR[9] = PORTC->PCR[9] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
+      else
+        return 0;
+      break;
+    case FTM_Ch6:
+      if(pin == PTE11)
+        PORTE->PCR[11] = PORTE->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTC10)
+        PORTC->PCR[10] = PORTC->PCR[10] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
+      else
+        return 0;
+      break;
+    case FTM_Ch7:
+      if(pin == PTE12)
+        PORTE->PCR[12] = PORTE->PCR[12] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(6); 
+      else if(pin == PTC11)
+        PORTC->PCR[11] = PORTC->PCR[11] & ~PORT_PCR_MUX_MASK | PORT_PCR_MUX(3);
+      else
+        return 0;
+      break;
+    default:
+      return 0;     
+    }
+  }
+#endif
   else
   {
     return 0;
@@ -1106,6 +1263,64 @@ static uint8 LPLD_FTM_PinDeinit(FTM_Type *ftmx, FtmChnEnum_Type chn)
       return 0;   
     }
   }
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(ftmx == FTM3)
+  {
+    switch(chn)
+    {
+    case FTM_Ch0:
+      if((PORTE->PCR[5]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[5] = PORT_PCR_MUX(0); 
+      if((PORTD->PCR[0]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
+        PORTD->PCR[0] = PORT_PCR_MUX(0);
+      break;
+    case FTM_Ch1:
+      if((PORTE->PCR[6]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[6] = PORT_PCR_MUX(0); 
+      if((PORTD->PCR[1]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
+        PORTD->PCR[1] = PORT_PCR_MUX(0);
+      break;
+    case FTM_Ch2:
+      if((PORTE->PCR[7]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[7] = PORT_PCR_MUX(0); 
+      if((PORTD->PCR[2]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
+        PORTD->PCR[2] = PORT_PCR_MUX(0);
+      break;
+    case FTM_Ch3:
+      if((PORTE->PCR[8]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[8] = PORT_PCR_MUX(0); 
+      if((PORTD->PCR[3]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(4))
+        PORTD->PCR[3] = PORT_PCR_MUX(0);
+      break;
+    case FTM_Ch4:
+      if((PORTE->PCR[9]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[9] = PORT_PCR_MUX(0); 
+      if((PORTC->PCR[8]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
+        PORTC->PCR[8] = PORT_PCR_MUX(0);
+      break;
+    case FTM_Ch5:
+      if((PORTE->PCR[10]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[10] = PORT_PCR_MUX(0); 
+      if((PORTC->PCR[9]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
+        PORTC->PCR[9] = PORT_PCR_MUX(0);
+      break;
+    case FTM_Ch6:
+      if((PORTE->PCR[11]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[11] = PORT_PCR_MUX(0); 
+      if((PORTC->PCR[10]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
+        PORTC->PCR[10] = PORT_PCR_MUX(0);
+      break;
+    case FTM_Ch7:
+      if((PORTE->PCR[12]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(6))
+        PORTE->PCR[12] = PORT_PCR_MUX(0); 
+      if((PORTC->PCR[11]& PORT_PCR_MUX_MASK) == PORT_PCR_MUX(3))
+        PORTC->PCR[11] = PORT_PCR_MUX(0);
+      break;
+    default:
+      return 0;     
+    }
+  }
+#endif
   else
   {
     return 0;
@@ -1192,3 +1407,21 @@ void FTM2_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
+
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+void FTM3_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif
+  
+  FTM_ISR[3]();
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+#endif
