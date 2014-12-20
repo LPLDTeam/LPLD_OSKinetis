@@ -138,6 +138,8 @@ typedef struct
       选择ADCx
     取值：
       ADC0、ADC1
+      <注:只有MK60F系列含有ADC2,ADC3>
+      ADC2、ADC3
     初始化：
       必须初始化
   */

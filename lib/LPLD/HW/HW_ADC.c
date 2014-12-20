@@ -23,8 +23,11 @@
 #include "HW_ADC.h"
 
 //用户自定义中断服务函数数组
+#if defined(CPU_MK60DZ10)
 ADC_ISR_CALLBACK ADC_ISR[2];
-
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+ADC_ISR_CALLBACK ADC_ISR[4];
+#endif
 static uint8 LPLD_ADC_Cal(ADC_Type *);
 
 /*
@@ -73,6 +76,18 @@ uint8 LPLD_ADC_Init(ADC_InitTypeDef adc_init_structure)
     i=1;
     SIM->SCGC3 |= SIM_SCGC3_ADC1_MASK;   // 开启ADC1时钟
   }
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(adcx == ADC2)
+  {
+    i=2;
+    SIM->SCGC3 |= SIM_SCGC6_ADC2_MASK;   // 开启ADC1时钟
+  }
+  else if(adcx == ADC3)
+  {
+    i=3;
+    SIM->SCGC3 |= SIM_SCGC3_ADC3_MASK;   // 开启ADC1时钟
+  }
+#endif
   else 
   {
     return 0;
@@ -154,6 +169,16 @@ uint8 LPLD_ADC_Deinit(ADC_InitTypeDef adc_init_structure)
   {
     SIM->SCGC3 &= ~(SIM_SCGC3_ADC1_MASK);   // 关闭ADC1时钟
   }
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(adcx == ADC2)
+  {
+    SIM->SCGC3 &= ~(SIM_SCGC6_ADC2_MASK);   // 开启ADC1时钟
+  }
+  else if(adcx == ADC3)
+  {
+    SIM->SCGC3 &= ~(SIM_SCGC3_ADC3_MASK);   // 开启ADC1时钟
+  }
+#endif
   else 
   {
     return 0;
@@ -170,6 +195,9 @@ uint8 LPLD_ADC_Deinit(ADC_InitTypeDef adc_init_structure)
  *    adcx--ADCx模块号
  *      |__ADC0          --ADC0
  *      |__ADC1          --ADC1
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *      |__ADC2          --ADC2
+ *      |__ADC3          --ADC3
  *    chn--ADC采集输入通道,详见技术手册K60P144M100SF2RM第118页
  *      ADC0
  *      |__DAD0          --差分(ADC0_DP0和ADC0_DM0)/单端(ADC0_DP0)
@@ -225,7 +253,62 @@ uint8 LPLD_ADC_Deinit(ADC_InitTypeDef adc_init_structure)
  *      |__AD27          --Bandgap
  *      |__AD29          --差分(-VREFH)/单端(VREFH)
  *      |__AD30          --单端(VREFL)
- *
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *          详见技术手册K60P144M120SF2RM第131页
+ *      ADC2      
+ *      |__DAD0          --差分(ADC2_DP0和ADC2_DM0)/单端(ADC2_DP0)
+ *      |__DAD1          --差分(ADC2_DP1和ADC2_DM1)/单端(ADC2_DP1)
+ *      |__DAD2          --差分(PGA2_DP和PGA2_DM)/单端(PGA2_DP)
+ *      |__DAD3          --差分(ADC2_DP3和ADC2_DM3)/单端(ADC2_DP3)
+ *      |__AD4           --单端A(ADC2_SE4a--PTB20)/单端B(保留)
+ *      |__AD5           --单端A(ADC2_SE5a--PTB21)/单端B(保留)
+ *      |__AD6           --单端A(保留)/单端B(保留)
+ *      |__AD7           --单端A(保留)/单端B(保留)
+ *      |__AD8           --单端(ADC2_SE8--PTB0)
+ *      |__AD9           --单端(ADC2_SE9--PTB1)
+ *      |__AD10          --单端(ADC2_SE10)
+ *      |__AD11          --单端(ADC2_SE11)
+ *      |__AD12          --单端(ADC2_SE12--PTA29)
+ *      |__AD13          --单端(ADC2_SE13--PTA28)
+ *      |__AD14          --单端(ADC2_SE14--PTA27)
+ *      |__AD15          --单端(ADC2_SE15--PTA26)
+ *      |__AD16          --单端(ADC2_SE16--PTE8)
+ *      |__AD17          --单端(ADC2_SE17--PTE9)
+ *      |__AD18          --单端(ADC2_SE18)
+ *      |__AD19          --单端(ADC2_DM0)
+ *      |__AD20          --单端(ADC2_DM1)
+ *      |__AD23          --单端(DAC2)
+ *      |__AD26          --温度传感器
+ *      |__AD27          --Bandgap
+ *      |__AD29          --差分(-VREFH)/单端(VREFH)
+ *      |__AD30          --单端(VREFL)
+ *      ADC3
+ *      |__DAD0          --差分(ADC3_DP0和ADC3_DM0)/单端(ADC3_DP0)
+ *      |__DAD1          --差分(ADC3_DP1和ADC3_DM1)/单端(ADC3_DP1)
+ *      |__DAD2          --差分(PGA3_DP和PGA3_DM)/单端(PGA3_DP)
+ *      |__DAD3          --差分(ADC3_DP3和ADC3_DM3)/单端(ADC3_DP3)
+ *      |__AD4           --单端A(ADC3_SE4a--PTA10)/单端B(ADC3_SE4b--PTE27)
+ *      |__AD5           --单端A(ADC3_SE5a--PTA9)/单端B(ADC3_SE5b--PTE26)
+ *      |__AD6           --单端A(ADC3_SE6a--PTA6)/单端B(保留)
+ *      |__AD7           --单端A(ADC3_SE7a--PTE28)/单端B(保留)
+ *      |__AD8           --单端(ADC3_SE8--PTB0)
+ *      |__AD9           --单端(ADC3_SE9--PTB1)
+ *      |__AD10          --单端(ADC3_SE10)
+ *      |__AD11          --单端(ADC3_SE11)
+ *      |__AD12          --单端(ADC3_SE12)
+ *      |__AD13          --单端(ADC3_SE13)
+ *      |__AD14          --单端(ADC3_SE14)
+ *      |__AD15          --单端(ADC3_SE15--PTA11)
+ *      |__AD16          --单端(ADC3_SE16--PTE11)
+ *      |__AD17          --单端(ADC3_SE17--PTE12)
+ *      |__AD18          --单端(VREF)
+ *      |__AD19          --单端(ADC3_DM0)
+ *      |__AD20          --单端(ADC3_DM1)
+ *      |__AD23          --单端(DAC3)
+ *      |__AD26          --温度传感器
+ *      |__AD27          --Bandgap
+ *      |__AD29          --差分(-VREFH)/单端(VREFH)
+ *      |__AD30          --单端(VREFL)
  * 输出:
  *    AD通道转换值(右对齐)，若为差分转换结果，则为二进制补码格式(需强制转换为int16)
  *
@@ -247,8 +330,13 @@ uint16 LPLD_ADC_Get(ADC_Type *adcx, AdcChnEnum_Type chn)
  *    adcx--ADCx模块号
  *      |__ADC0          --ADC0
  *      |__ADC1          --ADC1
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *      |__ADC2          --ADC2
+ *      |__ADC3          --ADC3
  *    chn--ADC采集输入通道,详见技术手册K60P144M100SF2RM第118页
  *      取值同LPLD_ADC_Get形参chn
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *          MK60F详见技术手册K60P144M120SF2RM第131页
  *    ab--SC1寄存器A、B通道选择
  *      |__0          --A转换通道
  *      |__1          --B转换通道
@@ -281,6 +369,9 @@ void LPLD_ADC_EnableConversion(ADC_Type *adcx, AdcChnEnum_Type chn, uint8 ab, bo
  *    adcx--ADCx模块号
  *      |__ADC0          --ADC0
  *      |__ADC1          --ADC1
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *      |__ADC2          --ADC2
+ *      |__ADC3          --ADC3
  *    ab--SC1寄存器A、B通道选择
  *      |__0          --A转换通道
  *      |__1          --B转换通道
@@ -304,6 +395,9 @@ uint16 LPLD_ADC_GetResult(ADC_Type *adcx, uint8 ab)
  *    adcx--ADCx模块号
  *      |__ADC0          --ADC0
  *      |__ADC1          --ADC1
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *      |__ADC2          --ADC2
+ *      |__ADC3          --ADC3
  *
  * 输出:
 *    0--SC1A寄存器COCO位置1
@@ -341,6 +435,12 @@ uint8 LPLD_ADC_EnableIrq(ADC_InitTypeDef adc_init_structure)
     i=0;
   else if(adcx == ADC1)
     i=1;
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(adcx == ADC2)
+    i=2;
+  else if(adcx == ADC3)
+    i=3;
+#endif
   else
     return 0;
 
@@ -371,6 +471,12 @@ uint8 LPLD_ADC_DisableIrq(ADC_InitTypeDef adc_init_structure)
     i=0;
   else if(adcx == ADC1)
     i=1;
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(adcx == ADC2)
+    i=2;
+  else if(adcx == ADC3)
+    i=3;
+#endif
   else
     return 0;
 
@@ -387,6 +493,9 @@ uint8 LPLD_ADC_DisableIrq(ADC_InitTypeDef adc_init_structure)
  *    adcx--ADCx模块号
  *      |__ADC0          --ADC0
  *      |__ADC1          --ADC1
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *      |__ADC2          --ADC2
+ *      |__ADC3          --ADC3
  *    chn--ADC采集输入通道,详见技术手册K60P144M100SF2RM第118页
  *      ADC0
  *      |__DAD0          --差分(ADC0_DP0和ADC0_DM0)/单端(ADC0_DP0)
@@ -442,7 +551,62 @@ uint8 LPLD_ADC_DisableIrq(ADC_InitTypeDef adc_init_structure)
  *      |__AD27          --Bandgap
  *      |__AD29          --差分(-VREFH)/单端(VREFH)
  *      |__AD30          --单端(VREFL)
- *
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *          详见技术手册K60P144M120SF2RM第131页
+ *      ADC2      
+ *      |__DAD0          --差分(ADC2_DP0和ADC2_DM0)/单端(ADC2_DP0)
+ *      |__DAD1          --差分(ADC2_DP1和ADC2_DM1)/单端(ADC2_DP1)
+ *      |__DAD2          --差分(PGA2_DP和PGA2_DM)/单端(PGA2_DP)
+ *      |__DAD3          --差分(ADC2_DP3和ADC2_DM3)/单端(ADC2_DP3)
+ *      |__AD4           --单端A(ADC2_SE4a--PTB20)/单端B(保留)
+ *      |__AD5           --单端A(ADC2_SE5a--PTB21)/单端B(保留)
+ *      |__AD6           --单端A(保留)/单端B(保留)
+ *      |__AD7           --单端A(保留)/单端B(保留)
+ *      |__AD8           --单端(ADC2_SE8--PTB0)
+ *      |__AD9           --单端(ADC2_SE9--PTB1)
+ *      |__AD10          --单端(ADC2_SE10)
+ *      |__AD11          --单端(ADC2_SE11)
+ *      |__AD12          --单端(ADC2_SE12--PTA29)
+ *      |__AD13          --单端(ADC2_SE13--PTA28)
+ *      |__AD14          --单端(ADC2_SE14--PTA27)
+ *      |__AD15          --单端(ADC2_SE15--PTA26)
+ *      |__AD16          --单端(ADC2_SE16--PTE8)
+ *      |__AD17          --单端(ADC2_SE17--PTE9)
+ *      |__AD18          --单端(ADC2_SE18)
+ *      |__AD19          --单端(ADC2_DM0)
+ *      |__AD20          --单端(ADC2_DM1)
+ *      |__AD23          --单端(DAC2)
+ *      |__AD26          --温度传感器
+ *      |__AD27          --Bandgap
+ *      |__AD29          --差分(-VREFH)/单端(VREFH)
+ *      |__AD30          --单端(VREFL)
+ *      ADC3
+ *      |__DAD0          --差分(ADC3_DP0和ADC3_DM0)/单端(ADC3_DP0)
+ *      |__DAD1          --差分(ADC3_DP1和ADC3_DM1)/单端(ADC3_DP1)
+ *      |__DAD2          --差分(PGA3_DP和PGA3_DM)/单端(PGA3_DP)
+ *      |__DAD3          --差分(ADC3_DP3和ADC3_DM3)/单端(ADC3_DP3)
+ *      |__AD4           --单端A(ADC3_SE4a--PTA10)/单端B(ADC3_SE4b--PTE27)
+ *      |__AD5           --单端A(ADC3_SE5a--PTA9)/单端B(ADC3_SE5b--PTE26)
+ *      |__AD6           --单端A(ADC3_SE6a--PTA6)/单端B(保留)
+ *      |__AD7           --单端A(ADC3_SE7a--PTE28)/单端B(保留)
+ *      |__AD8           --单端(ADC3_SE8--PTB0)
+ *      |__AD9           --单端(ADC3_SE9--PTB1)
+ *      |__AD10          --单端(ADC3_SE10)
+ *      |__AD11          --单端(ADC3_SE11)
+ *      |__AD12          --单端(ADC3_SE12)
+ *      |__AD13          --单端(ADC3_SE13)
+ *      |__AD14          --单端(ADC3_SE14)
+ *      |__AD15          --单端(ADC3_SE15--PTA11)
+ *      |__AD16          --单端(ADC3_SE16--PTE11)
+ *      |__AD17          --单端(ADC3_SE17--PTE12)
+ *      |__AD18          --单端(VREF)
+ *      |__AD19          --单端(ADC3_DM0)
+ *      |__AD20          --单端(ADC3_DM1)
+ *      |__AD23          --单端(DAC3)
+ *      |__AD26          --温度传感器
+ *      |__AD27          --Bandgap
+ *      |__AD29          --差分(-VREFH)/单端(VREFH)
+ *      |__AD30          --单端(VREFL)
  * 输出:
  *    0--配置错误
  *    1--配置成功
@@ -563,6 +727,109 @@ uint8 LPLD_ADC_Chn_Enable(ADC_Type *adcx, AdcChnEnum_Type chn)
         return 0;  
     }
   }
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(adcx == ADC2)
+  {
+    switch(chn)
+    {
+      case DAD0:   //ADC2_DP0 -- PGA1_DP
+      case DAD1:   //ADC2_DP1 -- PGA3_DP
+      case DAD2:   //PGA2_DP 
+      case DAD3:   //ADC2_DP3 -- PGA0_DP
+        break;
+      case AD4:   //ADC2_SE4a -- PTB20     
+      case AD5:   //ADC2_SE5a -- PTB21
+        if(mux == 0)    //a
+          PORTB->PCR[chn+16] =  PORT_PCR_MUX(0);
+        //else            //b
+          //PORTC->PCR[chn+4] =  PORT_PCR_MUX(0);
+        break;
+      case AD6:  //ADC1_SE6      
+      case AD7:  //ADC1_SE7
+        break;        
+      case AD8:  //ADC2_SE8 -- PTB0
+      case AD9:  //ADC2_SE9 -- PTB1
+        PORTB->PCR[chn-8] =  PORT_PCR_MUX(0);
+        break;
+      case AD10:  //ADC1_SE10
+      case AD11:  //ADC1_SE11
+        break;
+      case AD12:  //ADC2_SE12 -- PTA29
+      case AD13:  //ADC2_SE13 -- PTA28
+      case AD14:  //ADC2_SE14 -- PTA27
+      case AD15:  //ADC2_SE15 -- PTA26
+        PORTA->PCR[41-chn] =  PORT_PCR_MUX(0);
+        break;
+      case AD16:   //ADC2_SE16 -- PTE8
+      case AD17:   //ADC2_SE17 -- PTE9
+        PORTE->PCR[chn-8] =  PORT_PCR_MUX(0);
+        break;
+      case AD18:   //VREF Output
+      case AD19:   //ADC1_DM0 -- PGA1_DM
+      case AD20:   //ADC1_DM1 -- PGA3_DM
+      case AD23:   //DAC1_OUT 
+      case AD26:   //Temperature Sensor (S.E)
+      case AD27:   //Bandgap (S.E)
+      case AD29:   //VREFH (S.E)
+      case AD30:   //VREFL
+        break;
+      default:
+        return 0;  
+    }
+  }
+  else if(adcx == ADC3)
+  {
+    switch(chn)
+    {
+      case DAD0:   //ADC3_DP0 -- PGA1_DP
+      case DAD1:   //ADC3_DP1 -- PGA3_DP
+      case DAD2:   //PGA3_DP 
+      case DAD3:   //ADC3_DP3 -- PGA0_DP
+        break;
+      case AD4:   //ADC3_SE4a -- PTA10  //ADC3_SE4b -- PTE27   
+      case AD5:   //ADC3_SE5a -- PTA9   //ADC3_SE5b -- PTE26
+        if(mux == 0)    //a
+          PORTA->PCR[14 - chn] =  PORT_PCR_MUX(0);
+        else            //b
+          PORTE->PCR[31 - chn] =  PORT_PCR_MUX(0);
+        break;
+      case AD6:   //ADC3_SE6a--PTA6
+        PORTA->PCR[6] =  PORT_PCR_MUX(0);
+        break;     
+      case AD7:   //ADC3_SE7a--PTE28
+        PORTE->PCR[28] =  PORT_PCR_MUX(0);
+        break;       
+      case AD8:  //ADC3_SE8 -- PTB0
+      case AD9:  //ADC3_SE9 -- PTB1
+        PORTB->PCR[chn-8] =  PORT_PCR_MUX(0);
+        break;
+      case AD10:  //ADC3_SE10
+      case AD11:  //ADC3_SE11
+      case AD12:  //ADC3_SE12 
+      case AD13:  //ADC3_SE13 
+      case AD14:  //ADC3_SE14 
+        break;
+      case AD15:  //ADC3_SE15 -- PTA11
+        PORTA->PCR[11] =  PORT_PCR_MUX(0);
+        break;
+      case AD16:   //ADC3_SE16 -- PTE11
+      case AD17:   //ADC3_SE17 -- PTE12
+        PORTE->PCR[chn-5] =  PORT_PCR_MUX(0);
+        break;
+      case AD18:   //VREF Output
+      case AD19:   //ADC1_DM0 -- PGA1_DM
+      case AD20:   //ADC1_DM1 -- PGA3_DM
+      case AD23:   //DAC1_OUT 
+      case AD26:   //Temperature Sensor (S.E)
+      case AD27:   //Bandgap (S.E)
+      case AD29:   //VREFH (S.E)
+      case AD30:   //VREFL
+        break;
+      default:
+        return 0;  
+    }
+  }
+#endif
   else
   {
     return 0;
@@ -579,6 +846,9 @@ uint8 LPLD_ADC_Chn_Enable(ADC_Type *adcx, AdcChnEnum_Type chn)
  *    adcx--ADC模块号
  *      |__ADC0         -ADC0模块
  *      |__ADC1         -ADC1模块
+ *      <注:只有MK60F系列含有ADC2,ADC3>
+ *      |__ADC2         -ADC0模块
+ *      |__ADC3         -ADC1模块
  * 输出:
  *    0--配置错误
  *    1--配置成功
@@ -674,6 +944,7 @@ void ADC0_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
+
 void ADC1_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
@@ -690,3 +961,40 @@ void ADC1_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
+
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+void ADC2_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif
+  
+  //调用用户自定义中断服务
+  ADC_ISR[2]();  
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void ADC3_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif
+  
+  //调用用户自定义中断服务
+  ADC_ISR[2]();  
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+#endif
+
