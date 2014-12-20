@@ -25,8 +25,9 @@
 //声明eDMA中断回掉函数
 typedef void (*DMA_ISR_CALLBACK)(void);
 
+#if defined(CPU_MK60DZ10)
 //=====================================
-//      DMA request sources Number
+//  DMA request sources Number--MUX0
 //      外设的DMA请求号
 //=====================================
 #define UART0_REV_DMAREQ  2
@@ -90,6 +91,132 @@ typedef void (*DMA_ISR_CALLBACK)(void);
 #define DMA_MUX_62        62
 #define DMA_MUX_63        63
 
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+//=====================================
+//  DMA request sources Number--MUX0
+//      外设的DMA请求号
+//=====================================
+#define UART0_REV_DMAREQ  2
+#define UART0_TRAN_DMAREQ 3
+#define UART1_REV_DMAREQ  4
+#define UART1_TRAN_DMAREQ 5
+#define UART2_REV_DMAREQ  6
+#define UART2_TRAN_DMAREQ 7
+#define UART3_REV_DMAREQ  8
+#define UART3_TRAN_DMAREQ 9
+#define UART4_REV_DMAREQ  10
+#define UART4_TRAN_DMAREQ 11
+#define UART5_REV_DMAREQ  12
+#define UART5_TRAN_DMAREQ 13
+#define I2S0_REV_DMAREQ   14
+#define I2S0_TRAN_DMAREQ  15
+#define SPI0_REV_DMAREQ   16
+#define SPI0_TRAN_DMAREQ  17
+#define SPI1_REV_DMAREQ   18
+#define SPI1_TRAN_DMAREQ  19
+#define SPI2_REV_DMAREQ   20
+#define SPI2_TRAN_DMAREQ  21
+#define I2C0_DMAREQ       22
+#define I2C1_I2C2_DMAREQ  23
+#define FTM0_CH0_DMAREQ   24
+#define FTM0_CH1_DMAREQ   25
+#define FTM0_CH2_DMAREQ   26
+#define FTM0_CH3_DMAREQ   27
+#define FTM0_CH4_DMAREQ   28
+#define FTM0_CH5_DMAREQ   29
+#define FTM0_CH6_DMAREQ   30
+#define FTM0_CH7_DMAREQ   31
+#define FTM1_CH0_DMAREQ   32
+#define FTM1_CH1_DMAREQ   33
+#define FTM2_CH0_DMAREQ   34
+#define FTM2_CH1_DMAREQ   35
+#define IEEE_1588_Timers0 36
+#define IEEE_1588_Timers1 37
+#define IEEE_1588_Timers2 38
+#define IEEE_1588_Timers3 39
+#define ADC0_DMAREQ       40
+#define ADC1_DMAREQ       41
+#define CMP0_DMAREQ       42
+#define CMP1_DMAREQ       43
+#define CMP2_DMAREQ       44
+#define DAC0_DMAREQ       45
+#define DAC1_DMAREQ       46
+#define CMT_DMAREQ        47
+#define PDB_DMAREQ        48
+#define PORTA_DMAREQ      49
+#define PORTB_DMAREQ      50
+#define PORTC_DMAREQ      51
+#define PORTD_DMAREQ      52
+#define PORTE_DMAREQ      53
+#define DMA_MUX_54        54
+#define DMA_MUX_55        55
+#define DMA_MUX_56        56
+#define DMA_MUX_57        57
+#define DMA_MUX_58        58
+#define DMA_MUX_59        59
+#define DMA_MUX_60        60
+#define DMA_MUX_61        61
+#define DMA_MUX_62        62
+#define DMA_MUX_63        63
+//=====================================
+//  DMA request sources Number--MUX1
+//      外设的DMA请求号
+//=====================================
+#define UART0_REV_DMAREQ  2
+#define UART0_TRAN_DMAREQ 3
+#define UART1_REV_DMAREQ  4
+#define UART1_TRAN_DMAREQ 5
+#define UART2_REV_DMAREQ  6
+#define UART2_TRAN_DMAREQ 7
+#define UART3_REV_DMAREQ  8
+#define UART3_TRAN_DMAREQ 9
+#define UART4_REV_DMAREQ  10
+#define UART4_TRAN_DMAREQ 11
+#define UART5_REV_DMAREQ  12
+#define UART5_TRAN_DMAREQ 13
+#define I2S0_REV_DMAREQ   14
+#define I2S0_TRAN_DMAREQ  15
+#define SPI0_REV_DMAREQ   16
+#define SPI0_TRAN_DMAREQ  17
+#define SPI1_REV_DMAREQ   18
+#define SPI1_TRAN_DMAREQ  19
+#define SPI2_REV_DMAREQ   20
+#define SPI2_TRAN_DMAREQ  21
+#define FTM3_CH0_DMAREQ   24
+#define FTM3_CH1_DMAREQ   25
+#define FTM3_CH2_DMAREQ   26
+#define FTM3_CH3_DMAREQ   27
+#define FTM3_CH4_DMAREQ   28
+#define FTM3_CH5_DMAREQ   29
+#define FTM3_CH6_DMAREQ   30
+#define FTM3_CH7_DMAREQ   31
+#define IEEE_1588_Timers0 36
+#define IEEE_1588_Timers1 37
+#define IEEE_1588_Timers2 38
+#define IEEE_1588_Timers3 39
+#define ADC0_DMAREQ       40
+#define ADC1_DMAREQ       41
+#define ADC2_DMAREQ       42
+#define ADC3_DMAREQ       43
+#define DAC0_DMAREQ       45
+#define DAC1_DMAREQ       46
+#define CMP0_REQ          47
+#define CMP1_REQ          48
+#define CMP2_REQ          49
+#define CMP3_REQ          50
+#define PORTF_DMAREQ      53
+#define DMA_MUX_54        54
+#define DMA_MUX_55        55
+#define DMA_MUX_56        56
+#define DMA_MUX_57        57
+#define DMA_MUX_58        58
+#define DMA_MUX_59        59
+#define DMA_MUX_60        60
+#define DMA_MUX_61        61
+#define DMA_MUX_62        62
+#define DMA_MUX_63        63
+#endif
+
 //==========================================
 //      定义DMA通道号
 //==========================================
@@ -109,7 +236,24 @@ typedef void (*DMA_ISR_CALLBACK)(void);
 #define  DMA_CH13 13
 #define  DMA_CH14 14
 #define  DMA_CH15 15
-
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+#define  DMA_CH16 16
+#define  DMA_CH17 17
+#define  DMA_CH18 18
+#define  DMA_CH19 19
+#define  DMA_CH20 20
+#define  DMA_CH21 21
+#define  DMA_CH22 22
+#define  DMA_CH23 23
+#define  DMA_CH24 24
+#define  DMA_CH25 25
+#define  DMA_CH26 26
+#define  DMA_CH27 27
+#define  DMA_CH28 28
+#define  DMA_CH29 29
+#define  DMA_CH30 30
+#define  DMA_CH31 31
+#endif
 //===========================================
 //      DMA 传输的数据长度
 //      源地址数据长度分为：  8bit、16bit、32bit
@@ -133,6 +277,7 @@ typedef struct
       选择DMA通道
     取值：
       DMA_CH0~DMA_CH15
+    <注:只有MK60F系列含有DMA_CH16~DMA_CH31>
     初始化：
       必须初始化
   */

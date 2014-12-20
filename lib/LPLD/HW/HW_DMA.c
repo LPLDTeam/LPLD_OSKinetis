@@ -22,10 +22,12 @@
 #include "common.h"
 #include "HW_DMA.h"
 
+#if (defined(CPU_MK60DZ10)) 
 //用户自定义中断服务函数数组
 DMA_ISR_CALLBACK DMA_ISR[16];
-
-
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+DMA_ISR_CALLBACK DMA_ISR[32];
+#endif
 /*
  * LPLD_DMA_Init
  * 初始化eDMA模块
@@ -56,7 +58,11 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   boolean auto_disable = dma_init_struct.DMA_AutoDisableReq;
   
   //参数检查
+#if (defined(CPU_MK60DZ10))
   ASSERT( chx <= DMA_CH15 );       //eDMA通道选择
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  ASSERT( chx <= DMA_CH32 );       //eDMA通道选择
+#endif
   ASSERT( req <= DMA_MUX_63 );     //请求源选择
   ASSERT( major_cnt <= 0x7FFF );   //主计数判断
   ASSERT( src_addr != NULL );      //源地址判断
@@ -103,15 +109,15 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   }
   else // ch > 16
   {
-    DMAMUX1->CHCFG[chx] = DMAMUX_CHCFG_SOURCE(req);
+    DMAMUX1->CHCFG[chx - 16] = DMAMUX_CHCFG_SOURCE(req);
     //是否使能周期触发功能
     if(periodic_trigg == TRUE)
     {
-      DMAMUX1->CHCFG[chx] |= DMAMUX_CHCFG_TRIG_MASK;
+      DMAMUX1->CHCFG[chx - 16] |= DMAMUX_CHCFG_TRIG_MASK;
     }
     else
     {
-      DMAMUX1->CHCFG[chx] &= ~(DMAMUX_CHCFG_TRIG_MASK);
+      DMAMUX1->CHCFG[chx - 16] &= ~(DMAMUX_CHCFG_TRIG_MASK);
     }
   }
 #endif   
@@ -191,7 +197,7 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   }
   else
   {
-    DMAMUX1->CHCFG[chx] |= DMAMUX_CHCFG_ENBL_MASK;
+    DMAMUX1->CHCFG[chx - 16] |= DMAMUX_CHCFG_ENBL_MASK;
   }
 #endif
   return 1;
@@ -276,6 +282,7 @@ __INLINE void LPLD_DMA_SoftwareStartService(DMA_InitTypeDef dma_init_struct)
  * 与启动文件startup_K60.s中的中断向量表关联
  * 用户无需修改，程序自动进入对应通道中断函数
  */
+#if (defined(CPU_MK60DZ10))
 void DMA0_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
@@ -579,7 +586,502 @@ void DMA15_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
+void DMA0_DMA16_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<0)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[0]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<0;
+  }
+  else if(DMA0->INT & 0x1u<<16)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[16]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<16;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
 
+void DMA1_DMA17_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<1)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[1]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<1;
+  }
+  else if(DMA0->INT & 0x1u<<17)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[17]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<17;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA2_DMA18_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<2)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[2]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<2;
+  }
+  else if(DMA0->INT & 0x1u<<18)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[18]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<18;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA3_DMA19_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<3)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[3]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<3;
+  }
+  else if(DMA0->INT & 0x1u<<19)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[19]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<19;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA4_DMA20_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<4)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[4]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<4;
+  }
+  else if(DMA0->INT & 0x1u<<20)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[20]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<20;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA5_DMA21_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<5)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[5]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<5;
+  }
+  else if(DMA0->INT & 0x1u<<21)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[21]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<21;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA6_DMA22_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<6)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[6]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<6;
+  }
+  else if(DMA0->INT & 0x1u<<22)
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[22]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<22;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA7_DMA23_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<7 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[7]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<7;
+  }
+  else if( DMA0->INT & 0x1u<<23 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[23]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<23;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA8_DMA24_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<8 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[8]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<8;
+  }
+  else if( DMA0->INT & 0x1u<<24 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[24]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<24;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA9_DMA25_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<9 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[9]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<9;
+  }
+  else if( DMA0->INT & 0x1u<<25 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[25]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<25;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA10_DMA26_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<10 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[10]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<10;
+  }
+  else if( DMA0->INT & 0x1u<<26 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[26]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<26;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA11_DMA27_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<11 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[11]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<11;
+  }
+  else if( DMA0->INT & 0x1u<<27 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[27]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<27;
+  }
+  else
+  {}  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA12_DMA28_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<12 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[12]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<12;
+  }
+  else if( DMA0->INT & 0x1u<<28 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[28]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<28;
+  }
+  else
+  {}  
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA13_DMA29_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<13 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[13]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<13;
+  }
+  else if( DMA0->INT & 0x1u<<29 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[29]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<29;
+  }
+  else
+  {}   
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA14_DMA30_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<14 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[14]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<14;
+  }
+  else if( DMA0->INT & 0x1u<<30 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[30]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<30;
+  }
+  else
+  {}   
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+
+void DMA15_DMA31_IRQHandler(void)
+{
+#if (UCOS_II > 0u)
+  OS_CPU_SR  cpu_sr = 0u;
+  OS_ENTER_CRITICAL(); //告知系统此时已经进入了中断服务子函数
+  OSIntEnter();
+  OS_EXIT_CRITICAL();
+#endif  
+  
+  if( DMA0->INT & 0x1u<<15 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[15]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<15;
+  }
+  else if( DMA0->INT & 0x1u<<31 )
+  {
+    //调用用户自定义中断服务
+    DMA_ISR[31]();
+    //清除中断标志位
+    DMA0->INT |= 0x1u<<31;
+  }
+  else
+  {}
+  
+#if (UCOS_II > 0u)
+  OSIntExit();          //告知系统此时即将离开中断服务子函数
+#endif
+}
+#endif
 
 
 
