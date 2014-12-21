@@ -209,6 +209,12 @@ uint8 LPLD_PDB_AdcTriggerCfg(ADC_Type *adcx, uint32 cfg, uint16 delay)
     n = 0;
   else if(adcx == ADC1)
     n = 1;
+#if defined(CPU_MK60F12) || defined(CPU_MK60F15)
+  else if(adcx == ADC2)
+    n = 2;
+  else if(adcx == ADC3)
+    n = 3;  
+#endif 
   else
     return 0;
     
