@@ -80,7 +80,7 @@ uint8 LPLD_ADC_Init(ADC_InitTypeDef adc_init_structure)
   else if(adcx == ADC2)
   {
     i=2;
-    SIM->SCGC3 |= SIM_SCGC6_ADC2_MASK;   // 开启ADC1时钟
+    SIM->SCGC6 |= SIM_SCGC6_ADC2_MASK;   // 开启ADC1时钟
   }
   else if(adcx == ADC3)
   {
