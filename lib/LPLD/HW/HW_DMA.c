@@ -61,7 +61,7 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
 #if (defined(CPU_MK60DZ10))
   ASSERT( chx <= DMA_CH15 );       //eDMA通道选择
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
-  ASSERT( chx <= DMA_CH32 );       //eDMA通道选择
+  ASSERT( chx <= DMA_CH31 );       //eDMA通道选择
 #endif
   ASSERT( req <= DMA_MUX_63 );     //请求源选择
   ASSERT( major_cnt <= 0x7FFF );   //主计数判断
@@ -587,7 +587,8 @@ void DMA15_IRQHandler(void)
 #endif
 }
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
-void DMA0_DMA16_IRQHandler(void)
+//DMA0 DMA16共用此Handler
+void DMA0_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -617,8 +618,8 @@ void DMA0_DMA16_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA1_DMA17_IRQHandler(void)
+//DMA1 DMA17共用此Handler
+void DMA1_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -648,8 +649,8 @@ void DMA1_DMA17_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA2_DMA18_IRQHandler(void)
+//DMA2 DMA18共用此Handler
+void DMA2_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -679,8 +680,8 @@ void DMA2_DMA18_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA3_DMA19_IRQHandler(void)
+//DMA3 DMA19共用此Handler
+void DMA3_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -710,8 +711,8 @@ void DMA3_DMA19_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA4_DMA20_IRQHandler(void)
+//DMA4 DMA20共用此Handler
+void DMA4_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -741,8 +742,8 @@ void DMA4_DMA20_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA5_DMA21_IRQHandler(void)
+//DMA5 DMA21共用此Handler
+void DMA5_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -772,8 +773,8 @@ void DMA5_DMA21_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA6_DMA22_IRQHandler(void)
+//DMA6 DMA22共用此Handler
+void DMA6_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -803,8 +804,8 @@ void DMA6_DMA22_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA7_DMA23_IRQHandler(void)
+//DMA7 DMA23共用此Handler
+void DMA7_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -834,8 +835,8 @@ void DMA7_DMA23_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA8_DMA24_IRQHandler(void)
+//DMA8 DMA24共用此Handler
+void DMA8_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -865,8 +866,8 @@ void DMA8_DMA24_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA9_DMA25_IRQHandler(void)
+//DMA9 DMA25共用此Handler
+void DMA9_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -896,8 +897,8 @@ void DMA9_DMA25_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA10_DMA26_IRQHandler(void)
+//DMA10 DMA26共用此Handler
+void DMA10_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -927,8 +928,8 @@ void DMA10_DMA26_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA11_DMA27_IRQHandler(void)
+//DMA11 DMA27共用此Handler
+void DMA11_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -957,8 +958,8 @@ void DMA11_DMA27_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA12_DMA28_IRQHandler(void)
+//DMA12 DMA28共用此Handler
+void DMA12_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -988,8 +989,8 @@ void DMA12_DMA28_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA13_DMA29_IRQHandler(void)
+//DMA13 DMA29共用此Handler
+void DMA13_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -1019,8 +1020,8 @@ void DMA13_DMA29_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
-
-void DMA14_DMA30_IRQHandler(void)
+//DMA14 DMA30共用此Handler
+void DMA14_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
@@ -1051,7 +1052,8 @@ void DMA14_DMA30_IRQHandler(void)
 #endif
 }
 
-void DMA15_DMA31_IRQHandler(void)
+//DMA15 DMA31共用此Handler
+void DMA15_IRQHandler(void)
 {
 #if (UCOS_II > 0u)
   OS_CPU_SR  cpu_sr = 0u;
