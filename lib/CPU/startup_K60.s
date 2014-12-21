@@ -143,7 +143,7 @@ __vector_table_0x1c
         DCD     FTM2_IRQHandler           ;64:  FTM 2 interrupt
         DCD     CMT_IRQHandler            ;65:  CMT intrrupt
         DCD     RTC_IRQHandler            ;66:  RTC interrupt
-        DCD     0                         ;67:  Reserved
+        DCD     RTC_Seconds_IRQHandler    ;67:  RTC seconds interrupt
         DCD     PIT0_IRQHandler           ;68:  PIT 0 interrupt
         DCD     PIT1_IRQHandler           ;69:  PIT 1 interrupt
         DCD     PIT2_IRQHandler           ;70:  PIT 2 interrupt
@@ -168,20 +168,20 @@ __vector_table_0x1c
         DCD     PORTC_IRQHandler          ;89:  PORT C interrupt
         DCD     PORTD_IRQHandler          ;90:  PORT D interrupt
         DCD     PORTE_IRQHandler          ;91:  PORT E interrupt
-        DCD     Reserved108_IRQHandler  ; Reserved interrupt 108
-          DCD     Reserved109_IRQHandler  ; Reserved interrupt 109
-          DCD     Reserved110_IRQHandler  ; Reserved interrupt 110
-          DCD     Reserved111_IRQHandler  ; Reserved interrupt 111
-          DCD     Reserved112_IRQHandler  ; Reserved interrupt 112
-          DCD     Reserved113_IRQHandler  ; Reserved interrupt 113
-          DCD     Reserved114_IRQHandler  ; Reserved interrupt 114
-          DCD     Reserved115_IRQHandler  ; Reserved interrupt 115
-          DCD     Reserved116_IRQHandler  ; Reserved interrupt 116
-          DCD     Reserved117_IRQHandler  ; Reserved interrupt 117
-          DCD     Reserved118_IRQHandler  ; Reserved interrupt 118
-          DCD     Reserved119_IRQHandler  ; Reserved interrupt 119
-          DCD     DefaultISR  ; 120
-          DCD     DefaultISR  ; 121
+        DCD     PORTF_IRQHandler          ;92:  PORT F interrupt
+        DCD     Reserved109_IRQHandler    ;93:  Reserved interrupt 109
+        DCD     SWI_IRQHandler            ;94:  Software interrupt
+        DCD     NFC_IRQHandler            ;95:  NAND flash controller interrupt
+        DCD     USBHS_IRQHandler          ;96:  USB high speed OTG interrupt
+        DCD     Reserved113_IRQHandler    ;97:  Reserved interrupt 113
+        DCD     CMP3_IRQHandler           ;98:  CMP3 interrupt
+        DCD     Reserved115_IRQHandler    ; Reserved interrupt 115
+        DCD     Reserved116_IRQHandler    ; Reserved interrupt 116
+        DCD     FTM3_IRQHandler           ;101: FTM3 fault, overflow and channels interrupt
+        DCD     ADC2_IRQHandler           ;102: ADC2 interrupt
+        DCD     ADC3_IRQHandler           ;103: ADC3 interrupt
+        DCD     I2S1_Tx_IRQHandler        ;104: I2S1 transmit interrupt
+        DCD     I2S1_Rx_IRQHandler        ;105: I2S1 receive interrupt
           DCD     DefaultISR  ; 122
           DCD     DefaultISR  ; 123
           DCD     DefaultISR  ; 124
@@ -414,7 +414,7 @@ Reset_Handler
       PUBWEAK FTM2_IRQHandler
       PUBWEAK CMT_IRQHandler
       PUBWEAK RTC_IRQHandler
-      PUBWEAK  Reserved83_IRQHandler   
+      PUBWEAK RTC_Seconds_IRQHandler
       PUBWEAK PIT0_IRQHandler
       PUBWEAK PIT1_IRQHandler
       PUBWEAK PIT2_IRQHandler
@@ -439,18 +439,20 @@ Reset_Handler
       PUBWEAK PORTC_IRQHandler
       PUBWEAK PORTD_IRQHandler
       PUBWEAK PORTE_IRQHandler   
-      PUBWEAK  Reserved108_IRQHandler   
-      PUBWEAK  Reserved109_IRQHandler    
-      PUBWEAK  Reserved110_IRQHandler    
-      PUBWEAK  Reserved111_IRQHandler    
-      PUBWEAK  Reserved112_IRQHandler    
-      PUBWEAK  Reserved113_IRQHandler     
-      PUBWEAK  Reserved114_IRQHandler    
-      PUBWEAK  Reserved115_IRQHandler    
-      PUBWEAK  Reserved116_IRQHandler    
-      PUBWEAK  Reserved117_IRQHandler     
-      PUBWEAK  Reserved118_IRQHandler     
-      PUBWEAK  Reserved119_IRQHandler    
+      PUBWEAK PORTF_IRQHandler
+      PUBWEAK Reserved109_IRQHandler
+      PUBWEAK SWI_IRQHandler
+      PUBWEAK NFC_IRQHandler
+      PUBWEAK USBHS_IRQHandler
+      PUBWEAK Reserved113_IRQHandler
+      PUBWEAK CMP3_IRQHandler
+      PUBWEAK Reserved115_IRQHandler    
+      PUBWEAK Reserved116_IRQHandler    
+      PUBWEAK FTM3_IRQHandler
+      PUBWEAK ADC2_IRQHandler
+      PUBWEAK ADC3_IRQHandler
+      PUBWEAK I2S1_Tx_IRQHandler
+      PUBWEAK I2S1_Rx_IRQHandler
       PUBWEAK  DefaultISR                   
 
       SECTION .noinit:CODE:REORDER(1)
@@ -531,7 +533,7 @@ FTM1_IRQHandler
 FTM2_IRQHandler
 CMT_IRQHandler
 RTC_IRQHandler
-Reserved83_IRQHandler
+RTC_Seconds_IRQHandler
 PIT0_IRQHandler
 PIT1_IRQHandler
 PIT2_IRQHandler
@@ -556,18 +558,20 @@ PORTB_IRQHandler
 PORTC_IRQHandler
 PORTD_IRQHandler
 PORTE_IRQHandler
-Reserved108_IRQHandler
+PORTF_IRQHandler
 Reserved109_IRQHandler
-Reserved110_IRQHandler
-Reserved111_IRQHandler
-Reserved112_IRQHandler
+SWI_IRQHandler
+NFC_IRQHandler
+USBHS_IRQHandler
 Reserved113_IRQHandler
-Reserved114_IRQHandler
+CMP3_IRQHandler
 Reserved115_IRQHandler
 Reserved116_IRQHandler
-Reserved117_IRQHandler
-Reserved118_IRQHandler
-Reserved119_IRQHandler
+FTM3_IRQHandler
+ADC2_IRQHandler
+ADC3_IRQHandler
+I2S1_Tx_IRQHandler
+I2S1_Rx_IRQHandler
 DefaultISR
 
         B DefaultISR
