@@ -1,8 +1,8 @@
 /**
- * @file system_MK60F12.h
+ * @file system_MK60F15.h
  * @version 1.2.1[By LPLD]
  * @date 2013-06-18
- * @brief MK60F12系列单片机系统配置文件
+ * @brief MK60F15系列单片机系统配置文件
  *
  * 更改建议:禁止修改
  *
