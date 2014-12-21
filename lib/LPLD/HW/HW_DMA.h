@@ -92,10 +92,10 @@ typedef void (*DMA_ISR_CALLBACK)(void);
 #define DMA_MUX_63        63
 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
-//=====================================
-//  DMA request sources Number--MUX0
+//==========================================================
+//  DMA request sources Number--MUX0 channel00 -- channel15
 //      外设的DMA请求号
-//=====================================
+//===========================================================
 #define UART0_REV_DMAREQ  2
 #define UART0_TRAN_DMAREQ 3
 #define UART1_REV_DMAREQ  4
@@ -158,10 +158,10 @@ typedef void (*DMA_ISR_CALLBACK)(void);
 #define DMA_MUX_61        61
 #define DMA_MUX_62        62
 #define DMA_MUX_63        63
-//=====================================
-//  DMA request sources Number--MUX1
+//==========================================================
+//  DMA request sources Number--MUX1 channel16 -- channel31
 //      外设的DMA请求号
-//=====================================
+//==========================================================
 #define UART0_REV_DMAREQ  2
 #define UART0_TRAN_DMAREQ 3
 #define UART1_REV_DMAREQ  4
