@@ -86,7 +86,9 @@ uint8 LPLD_TSI_Init(TSI_InitTypeDef tsi_init_struct)
   //配置扫描寄存器
   TSI0->SCANC = ((TSI_SCANC_EXTCHRG(3))        //0.8pF内部参考电容
                   |(TSI_SCANC_REFCHRG(31))      //32uA充电电流
+#if defined(CPU_MK60DZ10)
                   |(TSI_SCANC_DELVOL(7))        //600mV间隔电压
+#endif
                   |(TSI_SCANC_SMOD(0))          //扫描周期mod
                   |(TSI_SCANC_AMPSC(0)));       //输入时钟(2^0)分频
   //使能通道

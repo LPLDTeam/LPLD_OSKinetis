@@ -79,6 +79,7 @@ static void USB_App_Callback(
 static uint_8 USB_App_Param_Callback(
     uint_8 request,
     uint_16 value,
+    uint_16 null,
     uint_8_ptr* data,
     USB_PACKET_SIZE* size);
 
@@ -243,6 +244,7 @@ void USB_App_Callback(
 uint_8 USB_App_Param_Callback(
       uint_8 request,        /* [IN] request type */
       uint_16 value,         /* [IN] report type and ID */
+      uint_16 Null,
       uint_8_ptr* data,      /* [OUT] pointer to the data */
       USB_PACKET_SIZE* size  /* [OUT] size of the transfer */
 )

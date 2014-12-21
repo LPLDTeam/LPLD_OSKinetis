@@ -21,8 +21,8 @@
 #define __MK_xxx_H__
 #define LITTLE_ENDIAN
 #define __NO_SETJMP //lpld modify
-#define printf printf_kinetis
-#define sprintf sprintf_kinetis
+//#define printf printf_kinetis
+//#define sprintf sprintf_kinetis
  
 //define current version of Freescal USB stack
 #define FREESCALE_USB_STACK_VERSION (v4.1.1) //lpld modify
