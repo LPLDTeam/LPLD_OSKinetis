@@ -1,0 +1,23 @@
+【必读】
+本压缩包内的例程【必须配合OSKinetis V3固件库使用】，否则单独编译无法成功！
+固件库地址：http://www.lpld.cn/?p=97
+
+[放置位置]
+该目录下的所有例程必须放置在OSKinetis V3固件库的/project目录下。
+例如：
+	LPLD_OSKinetis_V3/project/01-LPLD_HelloWorld
+
+[新建工程]
+拉普兰德提供了快速新建IAR工程的小工具，在例程同目录下，开发者只需要运行该软件就可以方便的新建空白工程。
+注意，目录下的“LPLD_Project_Template”文件夹为模板文件夹，开发者不要做任何改动，否则无法建立工程。
+
+[开发工具]
+所有例程均有IAR for ARM 6.4开发，开发者务必安装该版本或更高版本。
+下载地址：http://url.cn/NJLObj
+
+[版权所有]
+北京拉普兰德电子技术有限公司
+
+更多资料 http://www.lpld.cn
+技术支持&讨论 http://bbs.lpld.cn
+网络销售 http://laplenden.taobao.com
