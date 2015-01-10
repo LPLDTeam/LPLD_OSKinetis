@@ -1,5 +1,5 @@
 # LPLD_OSKinetis
-拉普兰德开源Kinetis固件库
+拉普兰德开源Kinetis固件库   
 官方网站：[www.lpld.cn](http://www.lpld.cn)   
 在线文档：[wiki.lpld.cn](http://wiki.lpld.cn)   
 
