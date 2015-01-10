@@ -1,9 +1,9 @@
 # LPLD_OSKinetis
-À­ÆÕÀ¼µÂ¿ªÔ´Kinetis¹Ì¼þ¿â
-¹Ù·½ÍøÕ¾£º[www.lpld.cn](http://www.lpld.cn)
-ÔÚÏßÎÄµµ£º[wiki.lpld.cn](http://wiki.lpld.cn)
+æ‹‰æ™®å…°å¾·å¼€æºKinetiså›ºä»¶åº“
+å®˜æ–¹ç½‘ç«™ï¼š[www.lpld.cn](http://www.lpld.cn)   
+åœ¨çº¿æ–‡æ¡£ï¼š[wiki.lpld.cn](http://wiki.lpld.cn)   
 
-**
-## »¶Ó­Ê¹ÓÃOSKinetis
-ÎÒÃÇ½«OSKinetis´úÂëÍÐ¹Üµ½GitHub£¬²¢ËæÊ±±£³Ö¸üÐÂ¡£Äã¿ÉÒÔÔÚÕâÀï»ñÈ¡×îÐÂ°æ±¾µÄ¹Ì¼þ¿â£¬µ«ÊÇÕâÊÇ¿ª·¢°æ±¾£¬Èç¹ûÄãÐèÒª»ñÈ¡ÎÒÃÇÕýÊ½·¢²¼µÄÎÈ¶¨°æ±¾£¬ÇëÖ±½Óµ½ÎÒÃÇµÄ¹ÙÍø»ñÈ¡¡£
-OSKinetisÊÇÀ­ÆÕÀ¼µÂ¿ª·¢²¢Î¬»¤µÄ»ùÓÚCÓïÑÔ±àÐ´µÄKinetis KÏµÁÐµ¥Æ¬»ú¹Ì¼þ¿â£¨Çý¶¯£©¡£ËüÊÇÃâ·ÑµÄ¡¢¿ªÔ´µÄ´úÂë£¬Äã¿ÉÒÔ×ÔÓÉÊ¹ÓÃ±¾´úÂë£¬µ«ÊÇÇëÎð×÷Îª±ÕÔ´Èí¼þ·¢²¼£¬ÇëÎðÔÙÎ´µÃµ½LPLDÐí¿ÉµÄÇé¿öÏÂÓÃÓÚÉÌÒµÈí¼þ¡£
+***
+## æ¬¢è¿Žä½¿ç”¨OSKinetis
+æˆ‘ä»¬å°†OSKinetisä»£ç æ‰˜ç®¡åˆ°GitHubï¼Œå¹¶éšæ—¶ä¿æŒæ›´æ–°ã€‚ä½ å¯ä»¥åœ¨è¿™é‡ŒèŽ·å–æœ€æ–°ç‰ˆæœ¬çš„å›ºä»¶åº“ï¼Œä½†æ˜¯è¿™æ˜¯å¼€å‘ç‰ˆæœ¬ï¼Œå¦‚æžœä½ éœ€è¦èŽ·å–æˆ‘ä»¬æ­£å¼å‘å¸ƒçš„ç¨³å®šç‰ˆæœ¬ï¼Œè¯·ç›´æŽ¥åˆ°æˆ‘ä»¬çš„å®˜ç½‘èŽ·å–ã€‚   
+OSKinetisæ˜¯æ‹‰æ™®å…°å¾·å¼€å‘å¹¶ç»´æŠ¤çš„åŸºäºŽCè¯­è¨€ç¼–å†™çš„Kinetis Kç³»åˆ—å•ç‰‡æœºå›ºä»¶åº“ï¼ˆé©±åŠ¨ï¼‰ã€‚å®ƒæ˜¯å…è´¹çš„ã€å¼€æºçš„ä»£ç ï¼Œä½ å¯ä»¥è‡ªç”±ä½¿ç”¨æœ¬ä»£ç ï¼Œä½†æ˜¯è¯·å‹¿ä½œä¸ºé—­æºè½¯ä»¶å‘å¸ƒï¼Œè¯·å‹¿å†æœªå¾—åˆ°LPLDè®¸å¯çš„æƒ…å†µä¸‹ç”¨äºŽå•†ä¸šè½¯ä»¶ã€‚
