@@ -50,7 +50,7 @@ define block CodeRelocateRam { section .textrw };
 
 /*将中断向量表起始地址放在 只读段.intvec，也就是对应ROM区的起始地址0x00000000*/
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
-/*定义代码执行地址为 0x0000000
+/*定义代码执行地址为__code_start__*/
 place at address mem:__code_start__ { readonly section .noinit };
 /*将编译后的只读readonly变量，和CodeRelocate块存到ROM区中，编译器动态分配*/
 place in ROM_region   { readonly, block CodeRelocate};
