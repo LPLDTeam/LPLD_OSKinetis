@@ -108,6 +108,8 @@ typedef unsigned char   boolean;      /* 8-bit*/
   #include "MK60D10.h"
 #elif (defined(CPU_MK60F12))
   #include "MK60F12.h"
+#elif (defined(CPU_MK60F15))
+  #include "MK60F15.h"
 #endif
 
 

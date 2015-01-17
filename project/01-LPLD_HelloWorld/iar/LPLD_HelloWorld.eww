@@ -5,6 +5,9 @@
     <path>$WS_DIR$\LPLD_HelloWorld_K60DZ10.ewp</path>
   </project>
   <project>
+    <path>$WS_DIR$\LPLD_HelloWorld_K60D10.ewp</path>
+  </project>
+  <project>
     <path>$WS_DIR$\LPLD_HelloWorld_K60F12.ewp</path>
   </project>
   <batchBuild/>

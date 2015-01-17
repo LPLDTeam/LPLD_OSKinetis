@@ -54,6 +54,8 @@
   #define CORE_CLK_MHZ        PLL_96
 #elif defined(USE_K60F12)
   #define CORE_CLK_MHZ        PLL_120
+#elif defined(USE_K60F15)
+  #define CORE_CLK_MHZ        PLL_150
 #endif
 
    
@@ -69,7 +71,7 @@
   #define BUS_CLK_MHZ         50u   
 #elif defined(USE_K60D10)
   #define BUS_CLK_MHZ         50u 
-#elif defined(USE_K60F12)
+#elif (defined(USE_K60F12) || defined(USE_K60F15))
   #define BUS_CLK_MHZ         60u
 #endif   
 /*
@@ -149,6 +151,8 @@
   #define CPU_MK60D10 
 #elif defined(USE_K60F12)
   #define CPU_MK60F12
+#elif defined(USE_K60F15)
+  #define CPU_MK60F15
 #else
   #error "未定义CPU类型"
 #endif  

@@ -97,6 +97,9 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
   default:
     return LPLD_PLL_Setup(PLL_96);
   }
+#elif (defined(CPU_MK60D10)) 
+  //TODO:
+  
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
  /*
  *************************************************
