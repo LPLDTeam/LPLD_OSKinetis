@@ -111,8 +111,14 @@ void main (void)
   pdb_init_struct.PDB_TriggerInputSourceSel = TRIGGER_PIT0;     //配置触发源为PIT0
   //初始化PDB
   LPLD_PDB_Init(pdb_init_struct);
+  
+#if defined(CPU_MK60DZ10)  
   //配置PDB触发ADC参数：触发ADC0模块、使能A组通道预触发、触发延时0
+  LPLD_PDB_AdcTriggerCfg(ADC0, PRETRIG_EN_A, 0);
+#elif defined(CPU_MK60F12) || defined(CPU_MK60F15)  
+  //配置PDB触发ADC参数：触发ADC2模块、使能A组通道预触发、触发延时0
   LPLD_PDB_AdcTriggerCfg(ADC2, PRETRIG_EN_A, 0);
+#endif
   
   //4.配置PIT触发周期
   //初始化PIT参数

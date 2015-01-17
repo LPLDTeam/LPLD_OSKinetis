@@ -308,6 +308,7 @@
           <state>$PROJ_DIR$\..\..\..\lib\LPLD</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD\HW</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD\DEV</state>
+          <state>$PROJ_DIR$\..\..\..\lib\LPLD\FUNC</state>
           <state>$PROJ_DIR$\..\..\..\lib\uCOS-II\Ports</state>
           <state>$PROJ_DIR$\..\..\..\lib\uCOS-II\Source</state>
           <state>$PROJ_DIR$\..\..\..\lib\FatFs</state>
@@ -1263,6 +1264,7 @@
           <state>$PROJ_DIR$\..\..\..\lib\LPLD</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD\HW</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD\DEV</state>
+          <state>$PROJ_DIR$\..\..\..\lib\LPLD\FUNC</state>
           <state>$PROJ_DIR$\..\..\..\lib\uCOS-II\Ports</state>
           <state>$PROJ_DIR$\..\..\..\lib\uCOS-II\Source</state>
           <state>$PROJ_DIR$\..\..\..\lib\FatFs</state>
@@ -2218,6 +2220,7 @@
           <state>$PROJ_DIR$\..\..\..\lib\LPLD</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD\HW</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD\DEV</state>
+          <state>$PROJ_DIR$\..\..\..\lib\LPLD\FUNC</state>
           <state>$PROJ_DIR$\..\..\..\lib\uCOS-II\Ports</state>
           <state>$PROJ_DIR$\..\..\..\lib\uCOS-II\Source</state>
           <state>$PROJ_DIR$\..\..\..\lib\FatFs</state>

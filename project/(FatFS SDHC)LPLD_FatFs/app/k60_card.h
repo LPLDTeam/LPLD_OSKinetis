@@ -133,7 +133,7 @@
  * 是否使用FatFs
  * 1使用  0不使用
  */
-#define USE_FATFS       0
+#define USE_FATFS       1
 
 /*
  * 选择当前USB设备的类型
