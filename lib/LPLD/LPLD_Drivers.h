@@ -1,7 +1,7 @@
 /**
  * @file LPLD_Drivers.h
- * @version 3.03[By LPLD]
- * @date 2014-2-10
+ * @version 3.1[By LPLD]
+ * @date 2015-01-11
  * @brief LPLD Kinetis驱动库通用定义配置
  *
  * 更改建议:不建议修改
@@ -26,7 +26,7 @@
 #define __LPLD_DRIVERS_H__
 
 //底层库版本定义
-#define OSKinetis_Version     "3.03"
+#define OSKinetis_Version     "3.1 b1"
 
 //端口引脚枚举定义
 typedef enum PortPinsEnum

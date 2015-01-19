@@ -1,7 +1,7 @@
 /**
  * @file k60_card.h
- * @version 3.0[By LPLD]
- * @date 2013-06-18
+ * @version 3.1[By LPLD]
+ * @date 2015-01-11
  * @brief 拉普兰德K60核心板配置文件
  *
  * 更改建议:可根据工程需求修改
@@ -48,10 +48,14 @@
  * PLL_180       //180MHz
  * PLL_200       //200MHz 如果超到200，发热很正常，烧了别找我>_>
  */
-#if defined(USE_K60D)
+#if defined(USE_K60DZ10)
   #define CORE_CLK_MHZ        PLL_96
-#elif defined(USE_K60F)
+#elif defined(USE_K60D10)
+  #define CORE_CLK_MHZ        PLL_96
+#elif defined(USE_K60F12)
   #define CORE_CLK_MHZ        PLL_120
+#elif defined(USE_K60F15)
+  #define CORE_CLK_MHZ        PLL_150
 #endif
 
    
@@ -63,9 +67,11 @@
  * LPLD提示：MK60DZ10额定最高总线频率为50MHz
  *           此处设置的为期望值，即最终输出频率不会高于此频率
 */
-#if defined(USE_K60D)
-  #define BUS_CLK_MHZ         50u    
-#elif defined(USE_K60F)
+#if defined(USE_K60DZ10)
+  #define BUS_CLK_MHZ         50u   
+#elif defined(USE_K60D10)
+  #define BUS_CLK_MHZ         50u 
+#elif (defined(USE_K60F12) || defined(USE_K60F15))
   #define BUS_CLK_MHZ         60u
 #endif   
 /*
@@ -139,10 +145,16 @@
 /*
  * 定义MCU型号
  */
-#if defined(USE_K60D)
-  #define CPU_MK60DZ10    
-#elif defined(USE_K60F)
+#if defined(USE_K60DZ10)
+  #define CPU_MK60DZ10   
+#elif defined(USE_K60D10)
+  #define CPU_MK60D10 
+#elif defined(USE_K60F12)
   #define CPU_MK60F12
+#elif defined(USE_K60F15)
+  #define CPU_MK60F15
+#else
+  #error "未定义CPU类型"
 #endif  
 
 

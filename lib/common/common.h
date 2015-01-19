@@ -1,7 +1,7 @@
 /**
  * @file common.h
- * @version 3.01[By LPLD]
- * @date 2013-10-4
+ * @version 3.1[By LPLD]
+ * @date 2015-01-11
  * @brief 包含所有需要用到的头文件以及相关宏定义
  *
  * 更改建议:建议备份后修改
@@ -104,12 +104,12 @@ typedef unsigned char   boolean;      /* 8-bit*/
  */
 #if (defined(CPU_MK60DZ10))
   #include "MK60DZ10.h"
+#elif (defined(CPU_MK60D10))
+  #include "MK60D10.h"
 #elif (defined(CPU_MK60F12))
   #include "MK60F12.h"
 #elif (defined(CPU_MK60F15))
   #include "MK60F15.h"
-#else
-  #error "No valid CPU defined"
 #endif
 
 

@@ -2,7 +2,13 @@
 
 <workspace>
   <project>
-    <path>$WS_DIR$\LPLD_VirtualMouse_K60.ewp</path>
+    <path>$WS_DIR$\LPLD_VirtualMouse_K60DZ10.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\LPLD_VirtualMouse_K60D10.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\LPLD_VirtualMouse_K60F12.ewp</path>
   </project>
   <batchBuild/>
 </workspace>

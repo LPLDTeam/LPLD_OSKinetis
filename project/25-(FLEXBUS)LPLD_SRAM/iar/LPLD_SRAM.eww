@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\LPLD_SRAM_K60DZ10.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\LPLD_SRAM_K60D10.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\LPLD_SRAM_K60F12.ewp</path>
+  </project>
+  <batchBuild/>
+</workspace>
+
+
