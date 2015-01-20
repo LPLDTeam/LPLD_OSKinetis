@@ -79,8 +79,12 @@ uint8 LPLD_SPI_Init(SPI_InitTypeDef spi_init_structure)
 
   if(spix == SPI0)
   {
+#if (CPU_MK60D10)  
+    SIM->SCGC6 |= SIM_SCGC6_SPI0_MASK; 
+#elif defined(CPU_MK60DZ10) || defined(CPU_MK60F12) || defined(CPU_MK60F15)
     SIM->SCGC6 |= SIM_SCGC6_DSPI0_MASK;  
-
+#endif
+     
     //—°‘ÒPCS0
     if(pcs0_pin == PTA14)
     {
