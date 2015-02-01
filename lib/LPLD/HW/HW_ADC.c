@@ -23,7 +23,7 @@
 #include "HW_ADC.h"
 
 //用户自定义中断服务函数数组
-#if defined(CPU_MK60DZ10)
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
 ADC_ISR_CALLBACK ADC_ISR[2];
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
 ADC_ISR_CALLBACK ADC_ISR[4];

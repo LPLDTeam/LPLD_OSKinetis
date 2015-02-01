@@ -20,7 +20,7 @@
 
 /****************************************
  说明：
-   CPU_MK60DZ10
+   CPU_MK60DZ10 & CPU_MK60D10
    *将PTC1引脚连接至舵机的信号线
    CPU_MK60F12 & CPU_MK60F15
    *将PTD0引脚连接至舵机的信号线
@@ -44,7 +44,7 @@ void main (void)
   
   delay(1000);
   //初始化延时后改变角度为45度
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)
   LPLD_FTM_PWM_ChangeDuty(FTM0, FTM_Ch0, angle_to_period(45));
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
   LPLD_FTM_PWM_ChangeDuty(FTM2, FTM_Ch0, angle_to_period(45));
@@ -60,7 +60,7 @@ void main (void)
  */
 void pwm_init(void)
 {
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)
   ftm_init_struct.FTM_Ftmx = FTM0;	//使能FTM0通道
   ftm_init_struct.FTM_Mode = FTM_MODE_PWM;	//使能PWM模式
   ftm_init_struct.FTM_PwmFreq = 50;	//PWM频率50Hz

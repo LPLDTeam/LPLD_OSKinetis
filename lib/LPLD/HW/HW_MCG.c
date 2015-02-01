@@ -169,7 +169,7 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
     flash_div += 1;
   }
  
-#if (defined(CPU_MK60DZ10)) 
+#if defined(CPU_MK60DZ10)
   // 这里假设复位后 MCG 模块默认为 FEI 模式
   // 首先移动到 FBE 模式
   MCG->C2 = 0;

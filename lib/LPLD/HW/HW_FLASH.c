@@ -34,7 +34,7 @@
  */
 void LPLD_Flash_Init(void)
 {
-#if (defined(CPU_MK60DZ10)) 
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
   //¼ì²éFlash·ÃÎÊ´íÎó
   if (FTFL->FSTAT & FTFL_FSTAT_ACCERR_MASK)
   {
@@ -90,7 +90,7 @@ void LPLD_Flash_Init(void)
 uint8 LPLD_Flash_SectorErase(uint32 FlashPtr)
 {
   uint8 Return = FLASH_OK;
-#if (defined(CPU_MK60DZ10))   
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)   
   //µÈ´ýCCIFÖÃ1
   while (!(FTFL->FSTAT & FTFL_FSTAT_CCIF_MASK)){};
   //Ð´ÈëÃüÁîµÀFCCOB¼Ä´æÆ÷
@@ -192,7 +192,7 @@ uint8 LPLD_Flash_ByteProgram(uint32 FlashStartAdd, uint32 *DataSrcPtr, uint32 Nu
   {
     size_buffer = (NumberOfBytes - 1)/BYTE_DIV + 1;
   }
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)
   //µÈ´ýÖ±µ½CCIFÉèÖÃ
   while (!(FTFL->FSTAT & FTFL_FSTAT_CCIF_MASK)){};
 

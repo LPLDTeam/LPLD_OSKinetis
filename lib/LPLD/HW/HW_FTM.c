@@ -23,7 +23,7 @@
 #include "HW_FTM.h"
 
 //用户自定义中断服务函数数组
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
 FTM_ISR_CALLBACK FTM_ISR[3];
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
 FTM_ISR_CALLBACK FTM_ISR[4];

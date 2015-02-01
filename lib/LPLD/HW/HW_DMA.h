@@ -25,7 +25,7 @@
 //声明eDMA中断回掉函数
 typedef void (*DMA_ISR_CALLBACK)(void);
 
-#if defined(CPU_MK60DZ10)
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
 //=====================================
 //  DMA request sources Number--MUX0
 //      外设的DMA请求号
