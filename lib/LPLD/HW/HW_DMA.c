@@ -22,7 +22,7 @@
 #include "common.h"
 #include "HW_DMA.h"
 
-#if (defined(CPU_MK60DZ10)) 
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
 //用户自定义中断服务函数数组
 DMA_ISR_CALLBACK DMA_ISR[16];
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
@@ -58,7 +58,7 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   boolean auto_disable = dma_init_struct.DMA_AutoDisableReq;
   
   //参数检查
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
   ASSERT( chx <= DMA_CH15 );       //eDMA通道选择
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
   ASSERT( chx <= DMA_CH31 );       //eDMA通道选择
@@ -70,7 +70,7 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   ASSERT( dst_addr != NULL );      //目的地址判断
   ASSERT( (dst_dsize <= DMA_DST_32BIT)||(dst_dsize == DMA_DST_16BYTE) );     //目的数据传输大小判断
  
-#if (defined(CPU_MK60DZ10))  
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)   
   SIM->SCGC6 |= SIM_SCGC6_DMAMUX_MASK;  //打开DMA通道多路复用器时钟 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
   SIM->SCGC6 |= SIM_SCGC6_DMAMUX0_MASK;  //打开DMA通道多路复用器时钟 
@@ -82,7 +82,7 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   DMA0->ERQ &= ~(1<<chx);
   
   //选择 通道x 配置外设的DMA源请求编号
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
   DMAMUX->CHCFG[chx] = DMAMUX_CHCFG_SOURCE(req);
   //是否使能周期触发功能
   if(periodic_trigg == TRUE)
@@ -188,7 +188,7 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
   } 
  
   //DMA通道使能
-#if (defined(CPU_MK60DZ10))  
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)   
   DMAMUX->CHCFG[chx] |= DMAMUX_CHCFG_ENBL_MASK;
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
   if(chx < 16)
@@ -217,7 +217,7 @@ uint8 LPLD_DMA_Init(DMA_InitTypeDef dma_init_struct)
  */
 uint8 LPLD_DMA_EnableIrq(DMA_InitTypeDef dma_init_struct)
 {
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
   enable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_IRQn)); 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
   if(dma_init_struct.DMA_CHx < 16)
@@ -246,7 +246,7 @@ uint8 LPLD_DMA_EnableIrq(DMA_InitTypeDef dma_init_struct)
  */
 uint8 LPLD_DMA_DisableIrq(DMA_InitTypeDef dma_init_struct)
 {
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
   disable_irq((IRQn_Type)(dma_init_struct.DMA_CHx + DMA0_IRQn)); 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
   if(dma_init_struct.DMA_CHx < 16)
@@ -282,7 +282,7 @@ __INLINE void LPLD_DMA_SoftwareStartService(DMA_InitTypeDef dma_init_struct)
  * 与启动文件startup_K60.s中的中断向量表关联
  * 用户无需修改，程序自动进入对应通道中断函数
  */
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
 void DMA0_IRQHandler(void)
 {
 #if (UCOS_II > 0u)

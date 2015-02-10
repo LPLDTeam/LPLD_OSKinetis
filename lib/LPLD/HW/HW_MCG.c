@@ -44,7 +44,7 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
   uint8 pll_freq;
   uint8 prdiv, vdiv;
   uint8 core_div, bus_div, flexbus_div, flash_div;
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)
 /*
  *************************************************
   【LPLD注解】MCG关键系数
@@ -97,9 +97,6 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
   default:
     return LPLD_PLL_Setup(PLL_96);
   }
-#elif (defined(CPU_MK60D10)) 
-  //TODO:
-  
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
  /*
  *************************************************
@@ -172,7 +169,7 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
     flash_div += 1;
   }
  
-#if (defined(CPU_MK60DZ10)) 
+#if defined(CPU_MK60DZ10)
   // 这里假设复位后 MCG 模块默认为 FEI 模式
   // 首先移动到 FBE 模式
   MCG->C2 = 0;
@@ -203,6 +200,36 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
   // Wait for clock status bits to update
   while (((MCG->S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x3){};
   // 已经进入PEE模式
+  
+#elif (defined(CPU_MK60D10)) 
+  // 这里假设复位后 MCG 模块默认为 FEI 模式
+  // 首先移动到 FBE 模式
+  MCG->C2 = 0;
+  // 选择外部 oscilator 、参考分频器 and 清零 IREFS 启动外部osc
+  // CLKS=2, FRDIV=3, IREFS=0, IRCLKEN=0, IREFSTEN=0
+  MCG->C1 = MCG_C1_CLKS(2) | MCG_C1_FRDIV(3);  
+  while (MCG->S & MCG_S_IREFST_MASK){}; // 等待参考时钟清零
+  while (((MCG->S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x2){}; // 等待时钟状态显示为外部参考时钟(ext ref clk)
+  // 进入FBE模式
+  // 配置 PLL 参考分频器, PLLCLKEN=0, PLLSTEN=0, PRDIV=5
+  // 用晶振频率来选择 PRDIV 值. 仅在有频率晶振的时候支持
+  // 产生 2MHz 的参考时钟给 PLL.
+  MCG->C5 = MCG_C5_PRDIV0(prdiv); // 设置 PLL 匹配晶振的参考分频数 
+  // 确保MCG_C6处于复位状态,禁止LOLIE、PLL、和时钟控制器,清PLL VCO分频器
+  MCG->C6 = 0x0;
+  //设置系统时钟分频系数
+  LPLD_Set_SYS_DIV(core_div, bus_div, flexbus_div, flash_div);  
+  //设置倍频系数
+  MCG->C6 = MCG_C6_PLLS_MASK | MCG_C6_VDIV0(vdiv); 
+  while (!(MCG->S & MCG_S_PLLST_MASK)){}; // wait for PLL status bit to set
+  while (!(MCG->S & MCG_S_LOCK0_MASK)){}; // Wait for LOCK bit to set
+  // 已经进入PBE模式
+  // 清零CLKS 进入PEE模式
+  MCG->C1 &= ~MCG_C1_CLKS_MASK;
+  // Wait for clock status bits to update
+  while (((MCG->S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x3){};
+  // 已经进入PEE模式
+  
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
   if (PMC->REGSC &  PMC_REGSC_ACKISO_MASK)
         PMC->REGSC |= PMC_REGSC_ACKISO_MASK;

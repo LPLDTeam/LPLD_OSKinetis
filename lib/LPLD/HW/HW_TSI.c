@@ -138,7 +138,7 @@ uint8 LPLD_TSI_Init(TSI_InitTypeDef tsi_init_struct)
       if((chs>>i)&0x1L)
       {
         TSI_ChxBaseVal[i] = *((uint16 *)TSI_CNTR[i]);
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10)
         TSI0->THRESHLD[i] = TSI_ChxBaseVal[i] + TSI_OVERRUN_VAL;
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
         TSI0->THRESHOLD = TSI_ChxBaseVal[i] + TSI_OVERRUN_VAL;
@@ -180,7 +180,7 @@ uint8 LPLD_TSI_Init(TSI_InitTypeDef tsi_init_struct)
 void LPLD_TSI_Deinit(void)
 {
   LPLD_TSI_DisableIrq();
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10)
   TSI0->STATUS = 0xFFFFFFFF;
 #endif
   TSI0->PEN = 0;
@@ -229,11 +229,11 @@ void TSI_IRQHandler(void)
     TSI_ISR[0]();
     TSI0->GENCS |= TSI_GENCS_OUTRGF_MASK;
     TSI0->GENCS |= TSI_GENCS_EOSF_MASK;
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10)
     TSI0->STATUS = 0x0000FFFF;
 #endif
   }
-#if (defined(CPU_MK60DZ10))
+#if defined(CPU_MK60DZ10)
   else if(TSI0->STATUS != 0 && TSI_ISR[1] != NULL)
   {
     TSI_ISR[1]();

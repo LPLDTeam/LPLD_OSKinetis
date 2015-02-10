@@ -161,11 +161,11 @@ void main (void)
 
   if(err==0)
   {
-    LPLD_LCD_ShowString(220,198,"Test Passed!",COLOR_Green,COLOR_Blue2);
+    LPLD_LCD_ShowString(220,11*18,"Test Passed!",COLOR_Green,COLOR_Blue2);
   }
   else
   {
-    LPLD_LCD_ShowString(220,198,"Test Failed!",COLOR_Red,COLOR_Blue2);
+    LPLD_LCD_ShowString(220,11*18,"Test Failed!",COLOR_Red,COLOR_Blue2);
   }
   
   while(1)
@@ -174,8 +174,8 @@ void main (void)
     result = (int16)LPLD_ADC_Get(ADC0, DAD1); 
     color = result>0?COLOR_Cyan:COLOR_Magenta;
     sprintf((int8 *)strBuff, "%5d", result);
-    LPLD_LCD_ShowString(88,162,strBuff,color,COLOR_Blue2);
-      
+    LPLD_LCD_ShowString(88,8*18,strBuff,color,COLOR_Blue2);
+
     //显示触摸屏XY值
     //如果LCD IRQ引脚为低代表有触摸
     if(PTE12_I == 0)
@@ -183,14 +183,14 @@ void main (void)
       X_Positon=LPLD_Touchscreen_GetResult(LPLD_SER_SAMPLE_X);
       Y_Positon=LPLD_Touchscreen_GetResult(LPLD_SER_SAMPLE_Y);
       sprintf((int8 *)strBuff, "%4d", X_Positon);
-      LPLD_LCD_ShowString(144,180,strBuff,COLOR_Magenta,COLOR_Blue2);
+      LPLD_LCD_ShowString(144,9*18,strBuff,COLOR_Magenta,COLOR_Blue2);
       sprintf((int8 *)strBuff, "%4d", Y_Positon);
-      LPLD_LCD_ShowString(200,180,strBuff,COLOR_Cyan,COLOR_Blue2);
+      LPLD_LCD_ShowString(200,9*18,strBuff,COLOR_Cyan,COLOR_Blue2);
     }
     
     //显示系统运行时间 
     sprintf((int8 *)strBuff, "Run Time:%ds", LPLD_RTC_GetRealTime());
-    LPLD_LCD_ShowString(0,218,strBuff,COLOR_Black,COLOR_Blue2);
+    LPLD_LCD_ShowString(0,12*18,strBuff,COLOR_Black,COLOR_Blue2);
     
     delay(500);
   } 
@@ -363,13 +363,13 @@ void tsi_isr()
   //如果X按键为有效触摸，则打印状态
   if(valid_touch & (1<<PAD_X))
   {
-    LPLD_LCD_ShowString(88,126,"X",COLOR_Magenta,COLOR_Blue2);
+    LPLD_LCD_ShowString(88,6*18,"X",COLOR_Magenta,COLOR_Blue2);
   }
   
   //如果O按键为有效触摸，则打印状态
   if(valid_touch & (1<<PAD_O))
   {
-    LPLD_LCD_ShowString(88,126,"O",COLOR_Cyan,COLOR_Blue2);
+    LPLD_LCD_ShowString(88,6*18,"O",COLOR_Cyan,COLOR_Blue2);
   }
 }
 
@@ -409,7 +409,7 @@ void portb_isr()
   {
     if(PTB6_I==0)
     {
-      LPLD_LCD_ShowString(88,144,"S1-PTB6",COLOR_Magenta,COLOR_Blue2);
+      LPLD_LCD_ShowString(88,7*18,"S1-PTB6",COLOR_Magenta,COLOR_Blue2);
     }
   }
   
@@ -418,7 +418,7 @@ void portb_isr()
   {
     if(PTB7_I==0)
     {
-      LPLD_LCD_ShowString(88,144,"S2-PTB7",COLOR_Cyan,COLOR_Blue2);
+      LPLD_LCD_ShowString(88,7*18,"S2-PTB7",COLOR_Cyan,COLOR_Blue2);
     }
   }
 }

@@ -31,7 +31,7 @@
 #define FLASH_NOT_ERASED            0x10
 #define FLASH_CONTENTERR            0x11
 
-#if (defined(CPU_MK60DZ10)) 
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
 /* flashÃüÁî */
 #define FLASH_CMD_PGM4              0x06      //±à³Ì³¤×ÖÃüÁî
 #define FLASH_CMD_ERSSCR            0x09      //²Á³ıFlashÉÈÇøÃüÁî

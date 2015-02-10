@@ -22,7 +22,7 @@
 #include "DEV_Touchscreen.h"
 
 static void LPLD_Touchscreen_Delay(int i);
-
+SPI_InitTypeDef touch_spi_param;
 /*
  * LPLD_Touchscreen_Init
  * 配置与ADS7843芯片连接的SPI模块
@@ -34,8 +34,7 @@ static void LPLD_Touchscreen_Delay(int i);
  */
 void LPLD_Touchscreen_Init (void)
 {
-  SPI_InitTypeDef touch_spi_param;
- 
+
   touch_spi_param.SPI_SPIx = TOUCHSCREEN_SPIX;
   touch_spi_param.SPI_SckDivider = SPI_SCK_DIV_32;//1.56Mhz
   touch_spi_param.SPI_Pcs0Pin = TOUCHSCREEN_PCS0;

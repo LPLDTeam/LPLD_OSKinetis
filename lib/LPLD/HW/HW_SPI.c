@@ -79,8 +79,12 @@ uint8 LPLD_SPI_Init(SPI_InitTypeDef spi_init_structure)
 
   if(spix == SPI0)
   {
+#if defined(CPU_MK60D10)  
+    SIM->SCGC6 |= SIM_SCGC6_SPI0_MASK; 
+#elif defined(CPU_MK60DZ10) || defined(CPU_MK60F12) || defined(CPU_MK60F15)
     SIM->SCGC6 |= SIM_SCGC6_DSPI0_MASK;  
-
+#endif
+     
     //Ñ¡ÔñPCS0
     if(pcs0_pin == PTA14)
     {
@@ -159,7 +163,7 @@ uint8 LPLD_SPI_Init(SPI_InitTypeDef spi_init_structure)
   }
   else if(spix == SPI1)
   {
-#if (defined(CPU_MK60DZ10))  
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)  
     SIM->SCGC6 |= SIM_SCGC6_SPI1_MASK; 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
     SIM->SCGC6 |= SIM_SCGC6_DSPI1_MASK; 
@@ -224,7 +228,7 @@ uint8 LPLD_SPI_Init(SPI_InitTypeDef spi_init_structure)
   }
   else if(spix == SPI2)
   {
-#if (defined(CPU_MK60DZ10))  
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
     SIM->SCGC3 |= SIM_SCGC3_SPI2_MASK; 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
     SIM->SCGC3 |= SIM_SCGC3_DSPI2_MASK; 
@@ -478,12 +482,16 @@ uint8 LPLD_SPI_Deinit(SPI_InitTypeDef spi_init_structure)
   if(spix == SPI0)
   {
     disable_irq(SPI0_IRQn);
+#if defined(CPU_MK60D10)
+    SIM->SCGC6 &= ~SIM_SCGC6_SPI0_MASK;
+#elif defined(CPU_MK60DZ10) || defined(CPU_MK60F12) || defined(CPU_MK60F15)
     SIM->SCGC6 &= ~SIM_SCGC6_DSPI0_MASK;
+#endif 
   }
   else if(spix == SPI1)
   {
     disable_irq(SPI1_IRQn);
-#if (defined(CPU_MK60DZ10))  
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10) 
     SIM->SCGC6 &= ~SIM_SCGC6_SPI1_MASK; 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
     SIM->SCGC6 &= ~SIM_SCGC6_DSPI1_MASK; 
@@ -492,7 +500,7 @@ uint8 LPLD_SPI_Deinit(SPI_InitTypeDef spi_init_structure)
   else if(spix == SPI2)
   {
     disable_irq(SPI2_IRQn);
-#if (defined(CPU_MK60DZ10))  
+#if defined(CPU_MK60DZ10) || defined(CPU_MK60D10)  
     SIM->SCGC3 &= ~SIM_SCGC3_SPI2_MASK; 
 #elif defined(CPU_MK60F12) || defined(CPU_MK60F15)
     SIM->SCGC3 &= ~SIM_SCGC3_DSPI2_MASK; 
