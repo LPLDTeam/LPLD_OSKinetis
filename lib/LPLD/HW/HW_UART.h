@@ -101,6 +101,14 @@ typedef struct
   */
   boolean UART_TxIntEnable;
   
+  boolean UART_TxDMAEnable;
+  boolean UART_RxDMAEnable;
+  boolean UART_TxFIFOEnable;
+  boolean UART_RxFIFOEnable;
+  uint8   UART_TxFIFOSize; 
+  uint8   UART_RxFIFOSize;
+  uint8   UART_TxFIFOWaterMark;
+  uint8   UART_RxFIFOWaterMark;
   /*
     描述：
       接收中断回调函数
