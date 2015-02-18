@@ -77,7 +77,7 @@ void uart_init(void);
 void uart_isr(void);
 void dma_isr(void);
 //变量声明
-UART_InitTypeDef uart0_init_struct;
+UART_InitTypeDef uart5_init_struct;
 #if USE_DMA_Tx_Rx == USE
 DMA_InitTypeDef uart_rev_dma_init_struct;
 DMA_InitTypeDef uart_trn_dma_init_struct;
@@ -99,33 +99,33 @@ void main (void)
  */
 void uart_init(void)
 {
-  uart0_init_struct.UART_Uartx = UART0;  //使用UART0
-  uart0_init_struct.UART_BaudRate = 9600; //设置波特率9600
-  uart0_init_struct.UART_RxPin = PTA15;  //接收引脚为PTE9
-  uart0_init_struct.UART_TxPin = PTA14;  //发送引脚为PTE8
+  uart5_init_struct.UART_Uartx = UART5;  //使用UART5
+  uart5_init_struct.UART_BaudRate = 9600; //设置波特率9600
+  uart5_init_struct.UART_RxPin = PTE9;  //接收引脚为PTE9
+  uart5_init_struct.UART_TxPin = PTE8;  //发送引脚为PTE8
 
 #if USE_FIFO_Tx_Rx == USE
-  uart0_init_struct.RxFIFO.FIFO_Enable = TRUE;
-  uart0_init_struct.TxFIFO.FIFO_Enable = TRUE;
-  uart0_init_struct.RxFIFO.FIFO_WaterMark = 1;
-  uart0_init_struct.RxFIFO.FIFO_BufFlow_IntEnable = TRUE;
-  uart0_init_struct.TxFIFO.FIFO_WaterMark = 1;
-  uart0_init_struct.TxFIFO.FIFO_BufFlow_IntEnable = TRUE;
+  uart5_init_struct.RxFIFO.FIFO_Enable = TRUE;
+  uart5_init_struct.TxFIFO.FIFO_Enable = TRUE;
+  uart5_init_struct.RxFIFO.FIFO_WaterMark = 1;
+  uart5_init_struct.RxFIFO.FIFO_BufFlow_IntEnable = TRUE;
+  uart5_init_struct.TxFIFO.FIFO_WaterMark = 1;
+  uart5_init_struct.TxFIFO.FIFO_BufFlow_IntEnable = TRUE;
 #endif
   
 #if USE_DMA_Tx_Rx == USE
-  uart0_init_struct.UART_RxDMAEnable = TRUE;    //使能接收DMA
-  uart0_init_struct.UART_TxDMAEnable = TRUE;    //使能发送DMA
+  uart5_init_struct.UART_RxDMAEnable = TRUE;    //使能接收DMA
+  uart5_init_struct.UART_TxDMAEnable = TRUE;    //使能发送DMA
   //配置接收DMA
   uart_rev_dma_init_struct.DMA_CHx = DMA_CH0;                     //选择DMA CH0作为通道
   uart_rev_dma_init_struct.DMA_MajorLoopCnt   = sizeof(recv_ram_buf); //设置计数器长度为数组长度
   uart_rev_dma_init_struct.DMA_MinorByteCnt   = 1;                //设置每次的长度为byte
   uart_rev_dma_init_struct.DMA_MajorCompleteIntEnable = TRUE;     //设置DMA 计数器清零中断
-  uart_rev_dma_init_struct.DMA_Req            = UART0_REV_DMAREQ; //设置DMA 请求为 UART rev
+  uart_rev_dma_init_struct.DMA_Req            = UART5_REV_DMAREQ; //设置DMA 请求为 UART rev
   uart_rev_dma_init_struct.DMA_DestAddr       = (uint32)recv_ram_buf; //设置目的地址为 recv_ram_buf
   uart_rev_dma_init_struct.DMA_DestAddrOffset = 1;                //每一次DMA请求，地址加1
   uart_rev_dma_init_struct.DMA_DestDataSize   = DMA_DST_8BIT;     //设置目的长度为byte
-  uart_rev_dma_init_struct.DMA_SourceAddr     = (uint32)&UART0->D;//设置UART D为源地址
+  uart_rev_dma_init_struct.DMA_SourceAddr     = (uint32)&UART5->D;//设置UART D为源地址
   uart_rev_dma_init_struct.DMA_SourceDataSize = DMA_SRC_8BIT;     //设置源长度为byte
   uart_rev_dma_init_struct.DMA_AutoDisableReq = FALSE;            //循环接收
   uart_rev_dma_init_struct.DMA_Isr = dma_isr;
@@ -134,11 +134,11 @@ void uart_init(void)
   uart_trn_dma_init_struct.DMA_MajorLoopCnt   = sizeof(recv_ram_buf); //设置计数器长度为数组长度
   uart_trn_dma_init_struct.DMA_MinorByteCnt   = 1;                //设置每次的长度为byte
   uart_trn_dma_init_struct.DMA_MajorCompleteIntEnable = FALSE;    //清空DMA 计数器清零中断
-  uart_trn_dma_init_struct.DMA_Req            = UART0_TRAN_DMAREQ;//设置DMA 请求为 UART trn
+  uart_trn_dma_init_struct.DMA_Req            = UART5_TRAN_DMAREQ;//设置DMA 请求为 UART trn
   uart_trn_dma_init_struct.DMA_SourceAddr     = (uint32)recv_ram_buf; //设置目的地址为 recv_ram_buf
   uart_trn_dma_init_struct.DMA_SourceAddrOffset = 1;               //每一次DMA请求，地址加1
   uart_trn_dma_init_struct.DMA_SourceDataSize = DMA_SRC_8BIT;     //设置源长度为byte
-  uart_trn_dma_init_struct.DMA_DestAddr       = (uint32)&UART0->D;//设置UART D为源地址
+  uart_trn_dma_init_struct.DMA_DestAddr       = (uint32)&UART5->D;//设置UART D为源地址
   uart_trn_dma_init_struct.DMA_DestDataSize   = DMA_DST_8BIT;     //设置目的长度为byte
   uart_trn_dma_init_struct.DMA_AutoDisableReq = TRUE;             //禁止循环发送
   
@@ -149,26 +149,26 @@ void uart_init(void)
   LPLD_DMA_EnableIrq(uart_rev_dma_init_struct);   //使能DMA CH0中断
 #endif
   
-  uart0_init_struct.UART_RxIntEnable = TRUE;    //使能接收中断
-  uart0_init_struct.UART_TxIntEnable = TRUE;    //使能发送中断
-  uart0_init_struct.UART_RxIsr = uart_isr;      //设置接收中断函数
-  LPLD_UART_Init(uart0_init_struct);            //初始化UART
+  uart5_init_struct.UART_RxIntEnable = TRUE;    //使能接收中断
+  uart5_init_struct.UART_TxIntEnable = TRUE;    //使能发送中断
+  uart5_init_struct.UART_RxIsr = uart_isr;      //设置接收中断函数
+  LPLD_UART_Init(uart5_init_struct);            //初始化UART
   
 #if USE_DMA_Tx_Rx != USE
   //使能UART中断
-  LPLD_UART_EnableIrq(uart0_init_struct);
+  LPLD_UART_EnableIrq(uart5_init_struct);
 #endif
 }
 
 /*
- * UART0接收中断函数
+ * UART5接收中断函数
  *
  */
 void uart_isr(void)
 {
   int8 recv;
-  recv = LPLD_UART_GetChar(UART0);
-  LPLD_UART_PutChar(UART0, recv);
+  recv = LPLD_UART_GetChar(UART5);
+  LPLD_UART_PutChar(UART5, recv);
 }
 
 /*
