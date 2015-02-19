@@ -607,7 +607,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>Template_K60F12.bin</state>
+          <state>LPLD_SerialComm_K60F12.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -2873,7 +2873,7 @@
       <name>$PROJ_DIR$\..\app\k60_card.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\app\LPLD_SerialCommc</name>
+      <name>$PROJ_DIR$\..\app\LPLD_SerialComm.c</name>
     </file>
   </group>
   <group>
