@@ -170,6 +170,7 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
   }
  
 #if defined(CPU_MK60DZ10)
+  #if 1
   // 这里假设复位后 MCG 模块默认为 FEI 模式
   // 首先移动到 FBE 模式
   MCG->C2 = 0;
@@ -200,7 +201,35 @@ uint8 LPLD_PLL_Setup(PllOptionEnum_Type core_clk_mhz)
   // Wait for clock status bits to update
   while (((MCG->S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x3){};
   // 已经进入PEE模式
-  
+  #else
+  //OSC->CR = OSC_CR_ERCLKEN_MASK;
+  MCG->C2 = MCG_C2_RANGE(0x01) | MCG_C2_HGO_MASK | MCG_C2_EREFS_MASK;
+  // 振荡器初始化完成后,释放锁存状态下的 oscillator 和 GPIO 
+  SIM->SCGC4 |= SIM_SCGC4_LLWU_MASK;
+  LLWU->CS |= LLWU_CS_ACKISO_MASK;
+  MCG->C1 = MCG_C1_CLKS(2) | MCG_C1_FRDIV(3);
+  while (!(MCG->S & MCG_S_OSCINIT_MASK)) {}; //等待C2[EREFS]初始化
+  while (MCG->S & MCG_S_IREFST_MASK){}; // 等待参考时钟清零
+  while (((MCG->S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x2){}; // 等待时钟状态显示为外部参考时钟(ext ref clk)
+  // 进入FBE模式
+  // 配置 PLL 参考分频器, PLLCLKEN=0, PLLSTEN=0, PRDIV=5
+  // 用晶振频率来选择 PRDIV 值. 仅在有频率晶振的时候支持
+  // 产生 2MHz 的参考时钟给 PLL.
+  MCG->C5 = MCG_C5_PRDIV(0x03); // 设置 PLL 匹配晶振的参考分频数 
+  // 确保MCG_C6处于复位状态,禁止LOLIE、PLL、和时钟控制器,清PLL VCO分频器
+  MCG->C6 = 0x0;
+  //设置系统时钟分频系数
+  LPLD_Set_SYS_DIV(core_div, bus_div, flexbus_div, flash_div);  
+  //设置倍频系数
+  MCG->C6 = MCG_C6_PLLS_MASK | MCG_C6_VDIV(24); 
+  while (!(MCG->S & MCG_S_PLLST_MASK)){}; // wait for PLL status bit to set
+  while (!(MCG->S & MCG_S_LOCK_MASK)){}; // Wait for LOCK bit to set
+  // 已经进入PBE模式
+  // 清零CLKS 进入PEE模式
+  MCG->C1 &= ~MCG_C1_CLKS_MASK;
+  // Wait for clock status bits to update
+  while (((MCG->S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) != 0x3){};
+  #endif
 #elif (defined(CPU_MK60D10)) 
   // 这里假设复位后 MCG 模块默认为 FEI 模式
   // 首先移动到 FBE 模式
