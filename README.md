@@ -20,5 +20,11 @@ OSKinetis是拉普兰德开发并维护的基于C语言编写的Kinetis K系列�
 - 添加几个CPU的宏定义:`USE_K60D10`,`USE_K60F12`。  
 - 修改.s启动文件名，使之更加具体针对某一系列的CPU。  
 - 重命名.icf文件名，统一格式为`LPLD_{CpuName}_{RAM|FLASH|BOOT}`
-
-
+2/13/2015 8:02:31 AM
+- 修改HW_UART.c和HW_UART.h，添加UART FIFO DMA功能，并在05-(UARTint)LPLD_SerialInterrupt中添加FIFO和DMA测试程序。
+- 修改system_MK60.c，增加cpu_identify()和Diagnostic_Reset_Source()函数
+- 修复LPLD_SerialComm_K60F12.ewp XML引入.c文件bug。
+- 修改HW_MCG.c增加8Mhz 无源晶振启动程序，根据无源晶振情况计算system_MK60.c中的SystemCoreClockUpdate。
+- 修复system_MK60D10.h文件的endline warning。
+- 在个project中的k60_card.h中添加晶振选择配置。
+- 添加设备MPU6050驱动文件。
