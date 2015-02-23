@@ -1,8 +1,8 @@
 /**
- * @file system_MK60D10.h
+ * @file system_MK60DZ10.h
  * @version 1.2.1[By LPLD]
- * @date 2015-01-17
- * @brief MK60D10系列单片机系统配置文件
+ * @date 2013-06-18
+ * @brief MK60DZ10系列单片机系统配置文件
  *
  * 更改建议:禁止修改
  *

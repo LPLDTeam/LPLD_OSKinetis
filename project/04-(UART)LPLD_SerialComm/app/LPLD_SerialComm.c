@@ -36,12 +36,12 @@ void main (void)
   int8 recv;
   
   uart_init();
-  LPLD_UART_PutCharArr(UART5, "Input something:\r\n", 18);
+  LPLD_UART_PutCharArr(UART0, "Input something:\r\n", 18);
   
   while(1)
   {
-    recv = LPLD_UART_GetChar(UART5);
-    LPLD_UART_PutChar(UART5, recv);
+    recv = LPLD_UART_GetChar(UART0);
+    LPLD_UART_PutChar(UART0, recv);
   } 
   
 }
@@ -52,10 +52,10 @@ void main (void)
  */
 void uart_init(void)
 {
-  uart5_init_struct.UART_Uartx = UART5; //使用UART5
+  uart5_init_struct.UART_Uartx = UART0; //使用UART5
   uart5_init_struct.UART_BaudRate = 9600; //设置波特率9600
-  uart5_init_struct.UART_RxPin = PTE9;  //接收引脚为PTE9
-  uart5_init_struct.UART_TxPin = PTE8;  //发送引脚为PTE8
+  uart5_init_struct.UART_RxPin = PTA15;  //接收引脚为PTE9
+  uart5_init_struct.UART_TxPin = PTA14;  //发送引脚为PTE8
   //初始化UART
   LPLD_UART_Init(uart5_init_struct);
 }

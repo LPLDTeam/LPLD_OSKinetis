@@ -32,7 +32,6 @@
 /*----------------------------------------------------------------------------
   定义时钟相关值
  *----------------------------------------------------------------------------*/
-#define CPU_XTAL_CLK_HZ                 50000000u       //外部有源晶振频率，单位Hz
 #define CPU_XTAL32k_CLK_HZ              32768u          //外部32k时钟晶振频率，单位Hz    
 #define CPU_INT_SLOW_CLK_HZ             32768u          //慢速内部振荡器的值，单位Hz
 #define CPU_INT_FAST_CLK_HZ             4000000u        //快速内部振荡器的值，单位Hz
@@ -122,17 +121,34 @@ void SystemInit (void) {
  */
 void SystemCoreClockUpdate (void) {
   uint32_t temp;
-#if (defined(CPU_MK60DZ10)) 
-  temp =  CPU_XTAL_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV_MASK) + 24u );
+#if (defined(CPU_MK60DZ10))
+  #if OSC_CIRCUIT_TPYE == CANNED_OSC_CIRCUIT
+  temp =  CANNED_OSC_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV_MASK) + 24u );
   temp = (uint32_t)(temp/((uint32_t)(MCG->C5 & MCG_C5_PRDIV_MASK) +1u ));
+  #elif OSC_CIRCUIT_TPYE == CRYSTAL_OSC_CIRCUIT
+  temp =  CRYSTAL_OSC_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV_MASK) + 24u );
+  temp = (uint32_t)(temp/((uint32_t)(MCG->C5 & MCG_C5_PRDIV_MASK) +1u ));
+  #endif
 #elif (defined(CPU_MK60D10))
-  temp =  CPU_XTAL_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV0_MASK) + 24u );
+  #if OSC_CIRCUIT_TPYE == CANNED_OSC_CIRCUIT
+  temp =  CANNED_OSC_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV0_MASK) + 24u );
   temp = (uint32_t)(temp/((uint32_t)(MCG->C5 & MCG_C5_PRDIV0_MASK) +1u ));
   temp = temp;
+  #elif OSC_CIRCUIT_TPYE == CRYSTAL_OSC_CIRCUIT
+  temp =  CRYSTAL_OSC_CLK_HZ *((uint32_t)(MCG->C6 & MCG_C6_VDIV0_MASK) + 24u );
+  temp = (uint32_t)(temp/((uint32_t)(MCG->C5 & MCG_C5_PRDIV0_MASK) +1u ));
+  temp = temp;
+  #endif
 #elif (defined(CPU_MK60F12) || defined(CPU_MK60F15))
-  temp =  CPU_XTAL_CLK_HZ /((uint32_t)(MCG->C5 & MCG_C5_PRDIV0_MASK) + 1u );
+  #if OSC_CIRCUIT_TPYE == CANNED_OSC_CIRCUIT
+  temp =  CANNED_OSC_CLK_HZ /((uint32_t)(MCG->C5 & MCG_C5_PRDIV0_MASK) + 1u );
   temp = (uint32_t)(temp*((uint32_t)(MCG->C6 & MCG_C6_VDIV0_MASK) +16u ));
   temp = temp/2;
+  #elif OSC_CIRCUIT_TPYE == CRYSTAL_OSC_CIRCUIT
+  temp =  CRYSTAL_OSC_CLK_HZ /((uint32_t)(MCG->C5 & MCG_C5_PRDIV0_MASK) + 1u );
+  temp = (uint32_t)(temp*((uint32_t)(MCG->C6 & MCG_C6_VDIV0_MASK) +16u ));
+  temp = temp/2;
+  #endif
 #endif
   SystemCoreClock = temp;
 }
