@@ -21,8 +21,13 @@
  */
 #ifndef __HW_UART_H__
 #define __HW_UART_H__
-
-
+//UART模块FIFO设置
+typedef struct 
+{
+  boolean FIFO_Enable;
+  boolean FIFO_BufFlow_IntEnable;
+  uint8   FIFO_WaterMark;
+} UART_FIFO_Config_T;
 //UART模块中断回调函数类型
 typedef void (*UART_ISR_CALLBACK)(void);
 
@@ -103,6 +108,65 @@ typedef struct
   
   /*
     描述：
+      使能发送DMA请求
+    取值：
+      TRUE-使能
+      FALSE-禁用
+    初始化：
+      不必须初始化，默认值FALSE
+  */
+  boolean UART_TxDMAEnable;
+  
+  /*
+    描述：
+      使能接收DMA请求
+    取值：
+      TRUE-使能
+      FALSE-禁用
+    初始化：
+      不必须初始化，默认值FALSE
+  */
+  boolean UART_RxDMAEnable;
+  
+  /*
+    描述：
+      配置发送FIFO
+    取值：
+      FIFO_Enable （使能FIFO）
+        TRUE-使能
+        FALSE-禁用
+      FIFO_BufFlow_IntEnable（使能FIFO buffer overflow 或者 underflow 中断 ）
+        TRUE-使能
+        FALSE-禁用
+      FIFO_WaterMark （设置 FIFO waterMark，不能超过FIFO Size）
+        0 -- FIFO Size
+    初始化：
+      FIFO_Enable，默认值FALSE
+      FIFO_BufFlow_IntEnable，默认值FALSE
+      FIFO_WaterMark，默认值0
+  */
+  UART_FIFO_Config_T TxFIFO;
+  
+  /*
+    描述：
+      配置接收FIFO
+    取值：
+      FIFO_Enable （使能FIFO）
+        TRUE-使能
+        FALSE-禁用
+      FIFO_BufFlow_IntEnable（使能FIFO buffer overflow 或者 underflow 中断 ）
+        TRUE-使能
+        FALSE-禁用
+      FIFO_WaterMark （设置 FIFO waterMark，不能超过FIFO Size）
+        0 -- FIFO Size
+    初始化：
+      FIFO_Enable，默认值FALSE
+      FIFO_BufFlow_IntEnable，默认值FALSE
+      FIFO_WaterMark，默认值0
+  */
+  UART_FIFO_Config_T RxFIFO;
+  /*
+    描述：
       接收中断回调函数
     取值：
       函数必须为无返回值,无参数(eg. void isr(void);)
@@ -137,5 +201,8 @@ void LPLD_UART_PutCharArr(UART_Type *, int8*, int32);
 void LPLD_UART_EnableIrq(UART_InitTypeDef);
 //UART中断禁用
 void LPLD_UART_DisableIrq(UART_InitTypeDef);
-
+//UART清空接收FIFO
+void LPLD_UART_RxFIFO_Flush(UART_Type *uartx);
+//UART清空发送FIFO
+void LPLD_UART_TxFIFO_Flush(UART_Type *uartx);
 #endif

@@ -44,7 +44,7 @@ void LPLD_UART_Init(UART_InitTypeDef uart_init_structure)
 {
   register uint16 sbr, brfa;
   uint32 sysclk;
-  uint8 temp, x;
+  uint8 temp, x ,len;
   UART_Type *uartx = uart_init_structure.UART_Uartx;
   uint32 baud = uart_init_structure.UART_BaudRate;
   PortPinsEnum_Type tx_pin = uart_init_structure.UART_TxPin;
@@ -189,28 +189,151 @@ void LPLD_UART_Init(UART_InitTypeDef uart_init_structure)
   
   uartx->C4 = temp |  UART_C4_BRFA(brfa);    
   
-  //配置发送接收中断
-  if(uart_init_structure.UART_RxIntEnable == TRUE && rx_isr != NULL)
+  //配置UART接收DMA方式
+  if( uart_init_structure.UART_RxDMAEnable == TRUE 
+    && uart_init_structure.UART_RxIntEnable == TRUE )
   {
+    //使能接收中断或者DMA
+    uartx->C2 |= UART_C2_RIE_MASK;
+    //使能接收DMA
+    uartx->C5 |= UART_C5_RDMAS_MASK;
+  }//配置UART接收中断方式
+  else if(uart_init_structure.UART_RxIntEnable == TRUE 
+        && rx_isr != NULL)
+  {
+    //使能接收中断
     uartx->C2 |= UART_C2_RIE_MASK; 
     UART_R_ISR[x] = rx_isr;
   } 
   else
   {
     uartx->C2 &= ~(UART_C2_RIE_MASK); 
+    uartx->C5 &= ~(UART_C5_RDMAS_MASK);
   }
-  if(uart_init_structure.UART_TxIntEnable == TRUE && tx_isr != NULL)
+  
+  //配置UART接收DMA方式
+  if( uart_init_structure.UART_TxDMAEnable == TRUE 
+    && uart_init_structure.UART_TxIntEnable == TRUE )
   {
+    //使能发送中断或者DMA
+    uartx->C2 |= UART_C2_TIE_MASK;
+    //使能接收DMA
+    uartx->C5 |= UART_C5_TDMAS_MASK;
+  }//配置UART发送中断方式
+  else if(uart_init_structure.UART_TxIntEnable == TRUE 
+        && tx_isr != NULL)
+  {
+    //使能发送中断
     uartx->C2 |= UART_C2_TIE_MASK; 
     UART_T_ISR[x] = tx_isr;
   } 
   else
   {
-    uartx->C2 &= ~(UART_C2_TIE_MASK); 
+    uartx->C2 &= ~(UART_C2_TIE_MASK);
+    uartx->C5 &= ~(UART_C5_TDMAS_MASK);
   }
   
-  //使能发送器和接收器
-  uartx->C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK );    
+  //配置UART FIFO 功能
+  if( (uartx->C2 & UART_C2_RE_MASK) == 0 
+     && uart_init_structure.RxFIFO.FIFO_Enable == TRUE)
+  {
+    //使能 UART 接收FIFO
+    uartx->PFIFO |= UART_PFIFO_RXFE_MASK;
+    
+    if(uart_init_structure.RxFIFO.FIFO_BufFlow_IntEnable == TRUE)
+    {
+      uartx->CFIFO |= UART_CFIFO_RXUFE_MASK;
+    }
+    
+    //读取 FIFO buffer 深度
+    len = (uint8)( uartx->PFIFO & UART_PFIFO_RXFIFOSIZE_MASK ) >> UART_PFIFO_RXFIFOSIZE_SHIFT;
+    len = len > 0 ? 1 << (len + 1) : 1;
+    //如果Rx FIFO buffer中的DataWords 大于等于 UART_FIFOWaterMark
+    //将产生中断或者DMA信号，取决C2_RIE和C5_RDMAS的状态
+    if( uart_init_structure.RxFIFO.FIFO_WaterMark > len )
+    {
+      uartx->RWFIFO = UART_RWFIFO_RXWATER(len);
+    }
+    else
+    {
+      uartx->RWFIFO = UART_RWFIFO_RXWATER(uart_init_structure.RxFIFO.FIFO_WaterMark);
+    }  
+  }
+  
+  if( (uartx->C2 & UART_C2_TE_MASK) == 0 
+     && uart_init_structure.TxFIFO.FIFO_Enable == TRUE)
+  {
+    //使能 UART 发送FIFO
+    uartx->PFIFO |= UART_PFIFO_TXFE_MASK;
+    
+    if(uart_init_structure.TxFIFO.FIFO_BufFlow_IntEnable == TRUE)
+    {
+      uartx->CFIFO |= UART_CFIFO_TXOFE_MASK;
+    }
+    
+    //读取 FIFO buffer 深度
+    len = (uint8)( uartx->PFIFO & UART_PFIFO_TXFIFOSIZE_MASK ) >> UART_PFIFO_TXFIFOSIZE_SHIFT;
+    len = len > 0 ? 1 << (len + 1) : 1;
+    //如果Tx FIFO buffer中的DataWords 小于等于 UART_FIFOWaterMark
+    //将产生中断或者DMA信号，取决C2_TIE和C5_TDMAS的状态
+    if( uart_init_structure.TxFIFO.FIFO_WaterMark > len )
+    {
+      uartx->TWFIFO = UART_TWFIFO_TXWATER(len);
+    }
+    else
+    {
+      uartx->TWFIFO = UART_TWFIFO_TXWATER(uart_init_structure.TxFIFO.FIFO_WaterMark);
+    }
+  }
+  //使能 UART 发送器
+  uartx->C2 |= UART_C2_TE_MASK | UART_C2_RE_MASK;  
+}
+
+
+/*
+ * LPLD_UART_RxFIFO_Flush
+ * 清空UART Rx FIFO
+ * 
+ * 参数:
+ *    uartx--UART模块号
+ *      |__UART0          --UART0
+ *      |__UART1          --UART1
+ *      |__UART2          --UART2
+ *      |__UART3          --UART3
+ *      |__UART4          --UART4
+ *      |__UART5          --UART5
+ *
+ */
+void LPLD_UART_RxFIFO_Flush(UART_Type *uartx)
+{
+  //清空接收 FIFO
+  if( uartx->PFIFO & UART_PFIFO_RXFE_MASK )
+  {
+    uartx->CFIFO |= UART_CFIFO_RXFLUSH_MASK;
+  }
+}
+
+/*
+ * LPLD_UART_TxFIFO_Flush
+ * 清空UART Tx FIFO
+ * 
+ * 参数:
+ *    uartx--UART模块号
+ *      |__UART0          --UART0
+ *      |__UART1          --UART1
+ *      |__UART2          --UART2
+ *      |__UART3          --UART3
+ *      |__UART4          --UART4
+ *      |__UART5          --UART5
+ *
+ */
+void LPLD_UART_TxFIFO_Flush(UART_Type *uartx)
+{
+  //清空发送 FIFO
+  if( uartx->PFIFO & UART_PFIFO_TXFE_MASK )
+  {
+    uartx->CFIFO |= UART_CFIFO_TXFLUSH_MASK;
+  }
 }
 
 /*
@@ -334,26 +457,32 @@ void LPLD_UART_EnableIrq(UART_InitTypeDef uart_init_structure)
   if(uart_init_structure.UART_Uartx == UART0)
   {
     enable_irq(UART0_RX_TX_IRQn);
+    enable_irq(UART0_ERR_IRQn);
   }
   else if(uart_init_structure.UART_Uartx == UART1)
   {
     enable_irq(UART1_RX_TX_IRQn);
+    enable_irq(UART1_ERR_IRQn);
   }
   else if(uart_init_structure.UART_Uartx == UART2)
   {
     enable_irq(UART2_RX_TX_IRQn);
+    enable_irq(UART2_ERR_IRQn);
   }
   else if(uart_init_structure.UART_Uartx == UART3)
   {
     enable_irq(UART3_RX_TX_IRQn);
+    enable_irq(UART3_ERR_IRQn);
   }
   else if(uart_init_structure.UART_Uartx == UART4)
   {
     enable_irq(UART4_RX_TX_IRQn);
+    enable_irq(UART4_ERR_IRQn);
   }
   else if(uart_init_structure.UART_Uartx == UART5)
   {
     enable_irq(UART5_RX_TX_IRQn);
+    enable_irq(UART5_ERR_IRQn);
   }
 }
 
@@ -373,17 +502,35 @@ void LPLD_UART_DisableIrq(UART_InitTypeDef uart_init_structure)
 {
   //根据中断请求号使能相应中断
   if(uart_init_structure.UART_Uartx == UART0)
+  {
     disable_irq(UART0_RX_TX_IRQn);
+    disable_irq(UART0_ERR_IRQn);
+  }
   else if(uart_init_structure.UART_Uartx == UART1)
+  {
     disable_irq(UART1_RX_TX_IRQn);
+    disable_irq(UART1_ERR_IRQn);
+  }
   else if(uart_init_structure.UART_Uartx == UART2)
+  {
     disable_irq(UART2_RX_TX_IRQn);
+    disable_irq(UART2_ERR_IRQn);
+  }
   else if(uart_init_structure.UART_Uartx == UART3)
+  {
     disable_irq(UART3_RX_TX_IRQn);
+    disable_irq(UART3_ERR_IRQn);
+  }
   else if(uart_init_structure.UART_Uartx == UART4)
+  {
     disable_irq(UART4_RX_TX_IRQn);
+    disable_irq(UART4_ERR_IRQn);
+  }
   else if(uart_init_structure.UART_Uartx == UART5)
+  {
     disable_irq(UART5_RX_TX_IRQn);
+    disable_irq(UART5_ERR_IRQn);
+  }
 }
 
 //HW层中断函数，用户无需调用
@@ -395,7 +542,16 @@ void UART0_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+  //判断Rx FIFO是否 Under flow
+  if( UART0->SFIFO & UART_SFIFO_RXUF_MASK)
+  {
+    UART0->SFIFO |= UART_SFIFO_RXUF_MASK;
+  }
+  //判断Tx FIFO是否 Over flow
+  if( UART0->SFIFO & UART_SFIFO_TXOF_MASK)
+  {
+    UART0->SFIFO |= UART_SFIFO_TXOF_MASK;
+  }
   //进入接收中断函数
   if((UART0->S1 & UART_S1_RDRF_MASK) && (UART0->C2 & UART_C2_RIE_MASK))
   {
@@ -421,7 +577,16 @@ void UART1_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+  //判断Rx FIFO是否 Under flow
+  if( UART1->SFIFO & UART_SFIFO_RXUF_MASK)
+  {
+    UART1->SFIFO |= UART_SFIFO_RXUF_MASK;
+  }
+  //判断Tx FIFO是否 Over flow
+  if( UART1->SFIFO & UART_SFIFO_TXOF_MASK)
+  {
+    UART1->SFIFO |= UART_SFIFO_TXOF_MASK;
+  }  
   //进入接收中断函数
   if((UART1->S1 & UART_S1_RDRF_MASK) && (UART1->C2 & UART_C2_RIE_MASK))
   {
@@ -447,7 +612,16 @@ void UART2_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+  //判断Rx FIFO是否 Under flow
+  if( UART2->SFIFO & UART_SFIFO_RXUF_MASK)
+  {
+    UART2->SFIFO |= UART_SFIFO_RXUF_MASK;
+  }
+  //判断Tx FIFO是否 Over flow
+  if( UART2->SFIFO & UART_SFIFO_TXOF_MASK)
+  {
+    UART2->SFIFO |= UART_SFIFO_TXOF_MASK;
+  }    
   //进入接收中断函数
   if((UART2->S1 & UART_S1_RDRF_MASK) && (UART2->C2 & UART_C2_RIE_MASK))
   {
@@ -473,7 +647,16 @@ void UART3_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+  //判断Rx FIFO是否 Under flow
+  if( UART3->SFIFO & UART_SFIFO_RXUF_MASK)
+  {
+    UART3->SFIFO |= UART_SFIFO_RXUF_MASK;
+  }
+  //判断Tx FIFO是否 Over flow
+  if( UART3->SFIFO & UART_SFIFO_TXOF_MASK)
+  {
+    UART3->SFIFO |= UART_SFIFO_TXOF_MASK;
+  }   
   //进入接收中断函数
   if((UART3->S1 & UART_S1_RDRF_MASK) && (UART3->C2 & UART_C2_RIE_MASK))
   {
@@ -499,7 +682,16 @@ void UART4_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+  //判断Rx FIFO是否 Under flow
+  if( UART4->SFIFO & UART_SFIFO_RXUF_MASK)
+  {
+    UART4->SFIFO |= UART_SFIFO_RXUF_MASK;
+  }
+  //判断Tx FIFO是否 Over flow
+  if( UART4->SFIFO & UART_SFIFO_TXOF_MASK)
+  {
+    UART4->SFIFO |= UART_SFIFO_TXOF_MASK;
+  }  
   //进入接收中断函数
   if((UART4->S1 & UART_S1_RDRF_MASK) && (UART4->C2 & UART_C2_RIE_MASK))
   {
@@ -525,7 +717,16 @@ void UART5_IRQHandler(void)
   OSIntEnter();
   OS_EXIT_CRITICAL();
 #endif
-  
+  //判断Rx FIFO是否 Under flow
+  if( UART5->SFIFO & UART_SFIFO_RXUF_MASK)
+  {
+    UART5->SFIFO |= UART_SFIFO_RXUF_MASK;
+  }
+  //判断Tx FIFO是否 Over flow
+  if( UART5->SFIFO & UART_SFIFO_TXOF_MASK)
+  {
+    UART5->SFIFO |= UART_SFIFO_TXOF_MASK;
+  }   
   //进入接收中断函数
   if((UART5->S1 & UART_S1_RDRF_MASK) && (UART5->C2 & UART_C2_RIE_MASK))
   {
@@ -541,3 +742,28 @@ void UART5_IRQHandler(void)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
 #endif
 }
+
+void UART0_ERR_IRQHandler(void)
+{
+}
+
+void UART1_ERR_IRQHandler(void)
+{
+}
+
+void UART2_ERR_IRQHandler(void)
+{
+}
+
+void UART3_ERR_IRQHandler(void)
+{
+}
+
+void UART4_ERR_IRQHandler(void)
+{
+}
+
+void UART5_ERR_IRQHandler(void)
+{
+}
+
