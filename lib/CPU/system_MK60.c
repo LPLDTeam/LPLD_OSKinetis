@@ -38,6 +38,9 @@
 #define CPU_INT_FAST_CLK_HZ             4000000u        //快速内部振荡器的值，单位Hz
 #define DEFAULT_SYSTEM_CLOCK            100000000u      //默认系统主频，单位Hz
 
+static void flash_identify (void);
+static void cpu_identify (void);
+static void Diagnostic_Reset_Source(void);
 /**
  * @brief 系统主频（单位Hz）
  */
@@ -101,6 +104,8 @@ void SystemInit (void) {
   printf("系统内核时钟:%dMHz\t总线时钟:%dMHz\r\n", g_core_clock/1000000u, g_bus_clock/1000000u);
   printf("FlexBus时钟:%dMHz\tFlash时钟:%dMHz\r\n", g_flexbus_clock/1000000u, g_flash_clock/1000000u);
   printf("系统启动完毕，若要禁用调试输出请定义PRINT_ON_OFF为1(k60_card.h)\r\n");
+  cpu_identify();
+  Diagnostic_Reset_Source();
   printf("********************************************************************\r\n");
 #endif
   
@@ -193,4 +198,253 @@ void SystemTickInit (void)
   OS_CPU_SysTickInit(cnts);     //初始化uCOS滴答定时器SysTick
 }
 #endif
+
+/**
+ * Kinetis CPU Identify
+ *
+ * @param  none
+ * @return none
+ *
+ * @brief 输出Kinetis以下信息
+ * - Kinetis family
+ * - package
+ * - die revision
+ * - P-flash size
+ * - Ram size
+ */
+static void cpu_identify (void)
+{
+    /* 判断Kinetis 单片机的型号 */
+    switch((SIM->SDID & SIM_SDID_FAMID(0x7))>>SIM_SDID_FAMID_SHIFT) 
+    {
+#ifdef DEBUG_PRINT 
+    	case 0x0:printf("\nK10-");break;
+    	case 0x1:printf("\nK20-");break;
+    	case 0x2:printf("\nK30-");break;
+    	case 0x3:printf("\nK40-");break;
+    	case 0x4:printf("\nK60-");break;
+    	case 0x5:printf("\nK70-");break;
+    	case 0x6:printf("\nK50-");break;
+    	case 0x7:printf("\nK53-");break;
+	default:printf("\n不能识别单片机型号-");break; 
+#else 	
+        default:break; 
+#endif
+    }
+
+     /* 判断Kinetis 单片机的封装 */
+    switch((SIM->SDID & SIM_SDID_PINID(0xF))>>SIM_SDID_PINID_SHIFT) 
+    {
+#ifdef DEBUG_PRINT
+    	case 0x2:printf("32pin-");break;
+    	case 0x4:printf("48pin-");break;
+    	case 0x5:printf("64pin-");break;
+    	case 0x6:printf("80pin-");break;
+    	case 0x7:printf("81pin-");break;
+    	case 0x8:printf("100pin-");break;
+    	case 0x9:printf("104pin-");break;
+    	case 0xA:printf("144pin-");break;
+    	case 0xC:printf("196pin-");break;
+    	case 0xE:printf("256pin-");break;
+	default:printf("不能识别单片机封装-.");break;
+#else 	
+        default:break; 
+#endif  	
+    }                
+
+#ifdef DEBUG_PRINT
+    printf("Silicon rev 1.%d\n",(SIM->SDID & SIM_SDID_REVID(0xF))>>SIM_SDID_REVID_SHIFT);
+#endif  
+    /* 判断Kinetis 单片机的P-flash size */
+    switch((SIM->FCFG1 & SIM_FCFG1_PFSIZE(0xF))>>SIM_FCFG1_PFSIZE_SHIFT)
+    {
+#ifdef DEBUG_PRINT
+  #if (defined(CPU_MK60DZ10) || defined(CPU_MK60D10)) 
+    	case 0x7:printf("128 kBytes of P-flash	");break;
+    	case 0x9:printf("256 kBytes of P-flash	");break;
+        case 0xB:printf("512 kBytes of P-flash	");break;
+    	case 0xF:printf("512 kBytes of P-flash	");break;
+	default:printf("不能识别单片机 P-flash size\n");break;
+  #elif (defined(CPU_MK60F12) || defined(CPU_MK60F15)) 
+        case 0xB:printf("512 kBytes of P-flash	");break;
+    	case 0xD:printf("1024 kBytes of P-flash	");break;
+    	case 0xF:printf("1024 kBytes of P-flash	");break;
+	default:printf("不能识别单片机 P-flash size\n");break;
+  #endif
+#else 	
+        default:break; 
+#endif
+    }
+
+#if (defined(CPU_MK60DZ10) || defined(CPU_MK60D10))
+    /* 判断是否只有 P-flash  或者 P-flash 和 FlexNVM */
+    if (SIM->FCFG2 & SIM_FCFG2_PFLSH_MASK) 
+  #ifdef DEBUG_PRINT
+      printf("P-flash only\n");
+  #else 
+      asm("nop");
+  #endif
+    else
+      /* 如果单片机有FlexNVM、判断Kinetis 单片机的FlexNVM size */
+      switch((SIM->FCFG1 & SIM_FCFG1_NVMSIZE(0xF))>>SIM_FCFG1_NVMSIZE_SHIFT)
+      {
+  #ifdef DEBUG_PRINT
+
+      	case 0x0:printf("0 kBytes of FlexNVM\n");break;
+    	case 0x7:printf("128 kBytes of FlexNVM\n");break;
+        case 0x9:printf("256 kBytes of FlexNVM\n");break;
+    	case 0xF:printf("256 kBytes of FlexNVM\n");break;
+	default:printf("不能识别单片机 FlexNVM size\n");break;
+  #else 	
+        default:break; 
+  #endif
+      }
+#endif
+    
+    /* 判断Kinetis 单片机的RAM size */
+    switch((SIM->SOPT1 & SIM_SOPT1_RAMSIZE(0xF))>>SIM_SOPT1_RAMSIZE_SHIFT)
+    {
+#ifdef DEBUG_PRINT
+  #if (defined(CPU_MK60DZ10) || defined(CPU_MK60D10))
+    	case 0x5:printf("32 kBytes of RAM\n");break;
+    	case 0x7:printf("64 kBytes of RAM\n");break;
+    	case 0x8:printf("96 kBytes of RAM\n");break;
+    	case 0x9:printf("128 kBytes of RAM\n");break;
+	default:printf("不能识别单片机 RAM size\n");break; 
+  #elif (defined(CPU_MK60F12) || defined(CPU_MK60F15))
+        case 0x9:printf("128 kBytes of RAM\n");break;
+	default:printf("不能识别单片机 RAM size\n");break;
+  #endif
+#else 	
+        default:break; 
+#endif
+    }
+    flash_identify(); 
+}
+
+/**
+ * Kinetis flash Identify
+ *
+ * @param  none
+ * @return none
+ *
+ * @brief 输出Kinetis以下信息
+ * - flash parameter revision
+ * - flash version ID
+ */
+static void flash_identify (void)
+{
+  uint8 info[8];
+#if (defined(CPU_MK60DZ10) || defined(CPU_MK60D10)) 
+    FTFL->FCCOB0 = 0x03;
+    FTFL->FCCOB1 = 0x00;
+    FTFL->FCCOB2 = 0x00;
+    FTFL->FCCOB3 = 0x00;
+    FTFL->FCCOB8 = 0x01;
+    FTFL->FSTAT = FTFL_FSTAT_CCIF_MASK;
+    while(!(FTFL->FSTAT & FTFL_FSTAT_CCIF_MASK));
+    info[0] = FTFL->FCCOB4; info[4] = FTFL->FCCOB8;
+    info[1] = FTFL->FCCOB5; info[5] = FTFL->FCCOB9;
+    info[2] = FTFL->FCCOB6; info[6] = FTFL->FCCOBA;
+    info[3] = FTFL->FCCOB7; info[7] = FTFL->FCCOBB;
+#ifdef DEBUG_PRINT  
+    printf("Flash parameter version %d.%d.%d.%d\n",info[0],info[1],info[2],info[3]);
+    printf("Flash version ID %d.%d.%d.%d\n",info[4],info[5],info[6],info[7]); 
+#endif  
+    FTFL->FSTAT = 0xFF;
+#elif (defined(CPU_MK60F12) || defined(CPU_MK60F15))
+    FTFE->FCCOB0 = 0x03;
+    FTFE->FCCOB1 = 0x00;
+    FTFE->FCCOB2 = 0x00;
+    FTFE->FCCOB3 = 0x08;
+    FTFE->FCCOB4 = 0x01;   
+    FTFE->FSTAT = FTFE_FSTAT_CCIF_MASK;
+    while(!(FTFE->FSTAT & FTFE_FSTAT_CCIF_MASK));
+    info[0] = FTFE->FCCOB4; info[4] = FTFE->FCCOB8;
+    info[1] = FTFE->FCCOB5; info[5] = FTFE->FCCOB9;
+    info[2] = FTFE->FCCOB6; info[6] = FTFE->FCCOBA;
+    info[3] = FTFE->FCCOB7; info[7] = FTFE->FCCOBB;
+#ifdef DEBUG_PRINT    
+    printf("Flash parameter version %d.%d.%d.%d\n",info[0],info[1],info[2],info[3]);
+    printf("Flash version ID %d.%d.%d.%d\n",info[4],info[5],info[6],info[7]);  
+#endif   
+    FTFE->FSTAT = 0x7F;
+#endif
+}
+
+/**
+ * Diagnostic_Reset_Source
+ *
+ * @param  none
+ * @return none
+ *
+ * @brief 输出Kinetis复位信息
+ */
+void Diagnostic_Reset_Source(void)
+{
+#ifdef DEBUG_PRINT 
+#if (defined(CPU_MK60DZ10)) 
+  /* 判断上一次复位的原因*/
+  if (MC->SRSH & MC_SRSH_SW_MASK)
+          printf("Software Reset\n");
+  if (MC->SRSH & MC_SRSH_LOCKUP_MASK)
+          printf("Core Lockup Event Reset\n");
+  if (MC->SRSH & MC_SRSH_JTAG_MASK)
+          printf("JTAG Reset\n");
+  if (MC->SRSL & MC_SRSL_POR_MASK)
+          printf("Power-on Reset\n");
+  if (MC->SRSL & MC_SRSL_PIN_MASK)
+          printf("External Pin Reset\n");
+  if (MC->SRSL & MC_SRSL_COP_MASK)
+          printf("Watchdog(COP) Reset\n");
+  if (MC->SRSL & MC_SRSL_LOC_MASK)
+          printf("Loss of Clock Reset\n");
+  if (MC->SRSL & MC_SRSL_LVD_MASK)
+          printf("Low-voltage Detect Reset\n");
+  if (MC->SRSL & MC_SRSL_WAKEUP_MASK)
+          printf("LLWU Reset\n");
+#elif (defined(CPU_MK60F12) || defined(CPU_MK60F15) || defined(CPU_MK60D10))
+  
+  if (RCM->SRS1 & RCM_SRS1_SACKERR_MASK)
+          printf("Stop Mode Acknowledge Error Reset\n");
+  if (RCM->SRS1 & RCM_SRS1_EZPT_MASK)
+          printf("EzPort Reset\n");
+  if (RCM->SRS1 & RCM_SRS1_MDM_AP_MASK)
+          printf("MDM-AP Reset\n");
+  if (RCM->SRS1 & RCM_SRS1_SW_MASK)
+          printf("Software Reset\n");
+  if (RCM->SRS1 & RCM_SRS1_LOCKUP_MASK)
+          printf("Core Lockup Event Reset\n");
+  if (RCM->SRS1 & RCM_SRS1_JTAG_MASK)
+          printf("JTAG Reset\n");
+  if (RCM->SRS0 & RCM_SRS0_POR_MASK)
+          printf("Power-on Reset\n");
+  if (RCM->SRS0 & RCM_SRS0_PIN_MASK)
+          printf("External Pin Reset\n");
+  if (RCM->SRS0 & RCM_SRS0_WDOG_MASK)
+          printf("Watchdog(COP) Reset\n");
+  if (RCM->SRS0 & RCM_SRS0_LOC_MASK)
+          printf("Loss of Clock Reset\n");
+  if (RCM->SRS0 & RCM_SRS0_LVD_MASK)
+          printf("Low-voltage Detect Reset\n");
+  if (RCM->SRS0 & RCM_SRS0_WAKEUP_MASK)
+  {
+    printf("[outSRS]Wakeup bit set from low power mode exit\n");
+    printf("[outSRS]SMC_PMPROT = %#02X ", (SMC->PMPROT))  ;
+    printf("[outSRS]SMC_PMCTRL = %#02X ", (SMC->PMCTRL))  ;
+    printf("[outSRS]SMC_VLLSCTRL = %#02X ", (SMC->VLLSCTRL))  ;
+    printf("[outSRS]SMC_PMSTAT = %#02X \r\n", (SMC->PMSTAT))  ;
+
+    if ((SMC->PMCTRL & SMC_PMCTRL_STOPM_MASK)== 3)
+      printf("[outSRS] LLS exit \n") ;
+    if (((SMC->PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC->VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 1))
+      printf("[outSRS] VLLS1 exit \n") ;
+    if (((SMC->PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC->VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 2))
+      printf("[outSRS] VLLS2 exit \n") ;
+    if (((SMC->PMCTRL & SMC_PMCTRL_STOPM_MASK)== 4) && ((SMC->VLLSCTRL & SMC_VLLSCTRL_VLLSM_MASK)== 3))
+      printf("[outSRS] VLLS3 exit \n") ; 
+  }
+#endif
+#endif
+}
 
