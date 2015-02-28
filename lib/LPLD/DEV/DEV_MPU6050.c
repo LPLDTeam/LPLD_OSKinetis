@@ -32,18 +32,18 @@ I2C_InitTypeDef MPU6050_init_struct;
 void MPU6050_WriteReg(uint8 RegisterAddress, uint8 Data)
 {
   //发送从机地址
-  LPLD_I2C_StartTrans(I2C1, SlaveAddress, I2C_MWSR);
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_ON);
+  LPLD_I2C_StartTrans(MPU6050_I2CX, SlaveAddress, I2C_MWSR);
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_ON);
   
   //写MPU6050寄存器地址
-  LPLD_I2C_WriteByte(I2C1, RegisterAddress);
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_ON);
+  LPLD_I2C_WriteByte(MPU6050_I2CX, RegisterAddress);
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_ON);
   
   //向寄存器中写具体数据
-  LPLD_I2C_WriteByte(I2C1, Data);
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_ON);
+  LPLD_I2C_WriteByte(MPU6050_I2CX, Data);
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_ON);
 
-  LPLD_I2C_Stop(I2C1);
+  LPLD_I2C_Stop(MPU6050_I2CX);
 }
 
 /*
@@ -61,35 +61,35 @@ uint8 MPU6050_ReadReg(uint8 RegisterAddress)
   uint8 result;
 
   //发送从机地址
-  LPLD_I2C_StartTrans(I2C1, SlaveAddress, I2C_MWSR);
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_ON);
+  LPLD_I2C_StartTrans(MPU6050_I2CX, SlaveAddress, I2C_MWSR);
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_ON);
 
   //写MPU6050寄存器地址
-  LPLD_I2C_WriteByte(I2C1, RegisterAddress);
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_ON);
+  LPLD_I2C_WriteByte(MPU6050_I2CX, RegisterAddress);
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_ON);
   
   //再次产生开始信号
-  LPLD_I2C_ReStart(I2C1);
+  LPLD_I2C_ReStart(MPU6050_I2CX);
 
   //发送从机地址和读取位
-  LPLD_I2C_WriteByte(I2C1, (SlaveAddress<<1)|I2C_MRSW);
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_ON);
+  LPLD_I2C_WriteByte(MPU6050_I2CX, (SlaveAddress<<1)|I2C_MRSW);
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_ON);
 
   //转换主机模式为读
-  LPLD_I2C_SetMasterWR(I2C1, I2C_MRSW);
+  LPLD_I2C_SetMasterWR(MPU6050_I2CX, I2C_MRSW);
 
   //关闭应答ACK
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_OFF);//关闭ACK
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_OFF);//关闭ACK
 
   //读IIC数据
-  result =LPLD_I2C_ReadByte(I2C1);
-  LPLD_I2C_WaitAck(I2C1, I2C_ACK_ON);
+  result =LPLD_I2C_ReadByte(MPU6050_I2CX);
+  LPLD_I2C_WaitAck(MPU6050_I2CX, I2C_ACK_ON);
 
   //发送停止信号
-  LPLD_I2C_Stop(I2C1);
+  LPLD_I2C_Stop(MPU6050_I2CX);
 
   //读IIC数据
-  result = LPLD_I2C_ReadByte(I2C1);
+  result = LPLD_I2C_ReadByte(MPU6050_I2CX);
   
   LPLD_SYSTICK_DelayMs(1);
 
