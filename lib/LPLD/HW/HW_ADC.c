@@ -80,12 +80,12 @@ uint8 LPLD_ADC_Init(ADC_InitTypeDef adc_init_structure)
   else if(adcx == ADC2)
   {
     i=2;
-    SIM->SCGC6 |= SIM_SCGC6_ADC2_MASK;   // 开启ADC1时钟
+    SIM->SCGC6 |= SIM_SCGC6_ADC2_MASK;   // 开启ADC2时钟
   }
   else if(adcx == ADC3)
   {
     i=3;
-    SIM->SCGC3 |= SIM_SCGC3_ADC3_MASK;   // 开启ADC1时钟
+    SIM->SCGC3 |= SIM_SCGC3_ADC3_MASK;   // 开启ADC3时钟
   }
 #endif
   else 
@@ -172,11 +172,11 @@ uint8 LPLD_ADC_Deinit(ADC_InitTypeDef adc_init_structure)
 #if defined(CPU_MK60F12) || defined(CPU_MK60F15)
   else if(adcx == ADC2)
   {
-    SIM->SCGC3 &= ~(SIM_SCGC6_ADC2_MASK);   // 开启ADC1时钟
+    SIM->SCGC3 &= ~(SIM_SCGC6_ADC2_MASK);   // 开启ADC2时钟
   }
   else if(adcx == ADC3)
   {
-    SIM->SCGC3 &= ~(SIM_SCGC3_ADC3_MASK);   // 开启ADC1时钟
+    SIM->SCGC3 &= ~(SIM_SCGC3_ADC3_MASK);   // 开启ADC3时钟
   }
 #endif
   else 
