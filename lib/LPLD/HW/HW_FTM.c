@@ -581,7 +581,7 @@ __INLINE uint8 LPLD_FTM_GetClkDiv(FTM_Type *ftmx)
  *      |__FTM3          --FTM3
  *
  * 输出:
- *    无
+ *    16位整形计数值
  *
  */
 __INLINE uint16 LPLD_FTM_GetCounter(FTM_Type *ftmx)
