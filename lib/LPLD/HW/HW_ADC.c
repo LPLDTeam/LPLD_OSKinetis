@@ -990,7 +990,7 @@ void ADC3_IRQHandler(void)
 #endif
   
   //调用用户自定义中断服务
-  ADC_ISR[2]();  
+  ADC_ISR[3]();  
   
 #if (UCOS_II > 0u)
   OSIntExit();          //告知系统此时即将离开中断服务子函数
