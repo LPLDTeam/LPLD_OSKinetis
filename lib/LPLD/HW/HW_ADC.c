@@ -437,9 +437,9 @@ uint8 LPLD_ADC_EnableIrq(ADC_InitTypeDef adc_init_structure)
     i=1;
 #if defined(CPU_MK60F12) || defined(CPU_MK60F15)
   else if(adcx == ADC2)
-    i=2;
+    i=45;
   else if(adcx == ADC3)
-    i=3;
+    i=46;
 #endif
   else
     return 0;
@@ -473,9 +473,9 @@ uint8 LPLD_ADC_DisableIrq(ADC_InitTypeDef adc_init_structure)
     i=1;
 #if defined(CPU_MK60F12) || defined(CPU_MK60F15)
   else if(adcx == ADC2)
-    i=2;
+    i=45;
   else if(adcx == ADC3)
-    i=3;
+    i=46;
 #endif
   else
     return 0;
