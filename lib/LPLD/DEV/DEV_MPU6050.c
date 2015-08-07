@@ -133,7 +133,7 @@ void MPU6050_Init()
   MPU6050_init_struct.I2C_IntEnable = FALSE;
   MPU6050_init_struct.I2C_ICR = MPU6050_SCL_400KHZ;     //可根据实际电路更改SCL频率
   MPU6050_init_struct.I2C_SclPin = MPU6050_SCLPIN;      //在MPU6050.h中修改该值
-  MPU6050_init_struct.I2C_SdaPin = MPU6050_SCLPIN;      //在MPU6050.h中修改该值
+  MPU6050_init_struct.I2C_SdaPin = MPU6050_SDAPIN;      //在MPU6050.h中修改该值
   MPU6050_init_struct.I2C_Isr = NULL;
   LPLD_I2C_Init(MPU6050_init_struct);
   
