@@ -90,8 +90,12 @@ void SystemInit (void) {
   
   //初始化用于打印调试信息的串口模块
   //TERM_PORT为UART通道，在k60_card.h中定义
+  //TERM_RX_PIN为UART_RX引脚，在k60_card.h中定义
+  //TERM_TX_PIN为UART_TX引脚，在k60_card.h中定义
   //TERMINAL_BAUD为UART波特率，在k60_card.h中定义
   term_port_structure.UART_Uartx = TERM_PORT;
+  term_port_structure.UART_RxPin = TERM_RX_PIN;
+  term_port_structure.UART_TxPin = TERM_TX_PIN;
   term_port_structure.UART_BaudRate = TERMINAL_BAUD;
   LPLD_UART_Init(term_port_structure);
   
