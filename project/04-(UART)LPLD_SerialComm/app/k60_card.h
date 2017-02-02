@@ -141,9 +141,11 @@
 
 
 /* 
- * 选择调试信息输出所有的串口号和波特率
+ * 选择调试信息输出所有的串口号、引脚和波特率
  */
 #define TERM_PORT           UART5
+#define TERM_RX_PIN         PTE9
+#define TERM_TX_PIN         PTE8
 #define TERMINAL_BAUD       115200
 
 /*
